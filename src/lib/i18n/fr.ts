@@ -85,7 +85,7 @@ export const fr = {
 
   legal: {
     avertissementRegles:
-      "Les règles de contrôle sont en cours de vérification au regard des spécifications officielles (EN 16931, Factur-X / FNFE-MPE, DGFiP). Les résultats marqués « À VÉRIFIER » sont indicatifs et ne constituent pas un avis réglementaire.",
+      "Chaque règle référence sa source (EN 16931, Factur-X / FNFE-MPE, DGFiP, CGI), mais reste « À VÉRIFIER » : la validation finale s'appuiera sur les schematrons officiels et un expert-comptable. Les résultats sont indicatifs et ne constituent pas un avis réglementaire.",
   },
 } as const;
 

@@ -28,7 +28,11 @@ export type ProfilFacturx =
   | "BASIC"
   | "EN 16931"
   | "EXTENDED"
+  | "EXTENDED-CTC-FR"
   | null;
+
+/** Profils acceptés par les plateformes agréées (contrôle FMT-003). */
+export const PROFILS_ACCEPTES: ProfilFacturx[] = ["EN 16931", "EXTENDED-CTC-FR"];
 
 /** Règle déclarative, chargée depuis `rules/*.json`. */
 export interface RuleDefinition {

@@ -7,7 +7,7 @@
       "libelle": "Format de facture électronique reconnu",
       "categorie": "format",
       "severite": "bloquant",
-      "source": null,
+      "source": "Réforme de la facturation électronique — formats admis : Factur-X, UBL, CII (EN 16931). Un PDF ordinaire n'est pas une facture électronique.",
       "aVerifier": true,
       "messageOk": "Le format a été reconnu.",
       "commentCorriger": "Le fichier doit être une facture au format Factur-X (PDF/A-3 + XML), UBL ou CII. Exportez votre facture depuis votre logiciel dans l'un de ces formats agréés.",
@@ -15,14 +15,25 @@
     },
     {
       "id": "FMT-002",
-      "libelle": "Profil Factur-X identifié",
+      "libelle": "Profil Factur-X identifié (BT-24)",
       "categorie": "format",
       "severite": "avertissement",
-      "source": null,
+      "source": "EN 16931 — BT-24 (Specification identifier) ; Factur-X (FNFE-MPE).",
       "aVerifier": true,
       "messageOk": "Le profil Factur-X a été identifié.",
-      "commentCorriger": "Le profil (MINIMUM, BASIC WL, BASIC, EN 16931, EXTENDED) doit être déclaré dans le contexte du document. Vérifiez l'identifiant de spécification (GuidelineSpecifiedDocumentContextParameter).",
-      "infobulle": "Le profil indique le niveau de détail des données structurées de la facture."
+      "commentCorriger": "Le profil (MINIMUM, BASIC WL, BASIC, EN 16931, EXTENDED, EXTENDED-CTC-FR) doit être déclaré dans l'identifiant de spécification (BT-24 / GuidelineSpecifiedDocumentContextParameter).",
+      "infobulle": "BT-24 : identifiant de spécification, qui déclare le profil de la facture."
+    },
+    {
+      "id": "FMT-003",
+      "libelle": "Profil accepté par les plateformes",
+      "categorie": "format",
+      "severite": "bloquant",
+      "source": "Profils acceptés en CTC : EN 16931 et EXTENDED-CTC-FR (à confirmer sur les schematrons des plateformes / FNFE-MPE).",
+      "aVerifier": true,
+      "messageOk": "Le profil déclaré est accepté par les plateformes.",
+      "commentCorriger": "Une facture par ailleurs correcte peut être refusée si elle déclare un profil non accepté (ex. BASIC). Déclarez le profil EN 16931 ou EXTENDED-CTC-FR dans le BT-24.",
+      "infobulle": "Les plateformes agréées contrôlent le profil déclaré (BT-24) et rejettent les profils non prévus pour le CTC français."
     }
   ]
 }

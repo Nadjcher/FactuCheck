@@ -1,13 +1,13 @@
 {
   "fichier": "mentions",
-  "description": "Mentions obligatoires de la facture.",
+  "description": "Mentions obligatoires de la facture (mentions classiques CGI art. 242 nonies A + nouvelles mentions CTC).",
   "regles": [
     {
       "id": "MEN-001",
       "libelle": "SIREN de l'émetteur présent",
       "categorie": "mentions",
       "severite": "bloquant",
-      "source": null,
+      "source": "CGI art. 242 nonies A ; EN 16931 — identification du vendeur (BT-30 / BT-29).",
       "aVerifier": true,
       "messageOk": "Le SIREN de l'émetteur est renseigné.",
       "commentCorriger": "Renseignez le SIREN (9 chiffres) de l'entreprise émettrice dans l'identification du vendeur.",
@@ -18,18 +18,18 @@
       "libelle": "SIREN du client présent",
       "categorie": "mentions",
       "severite": "bloquant",
-      "source": null,
+      "source": "Réforme CTC — nouvelle mention obligatoire : SIREN du client (routage des factures) ; EN 16931 identification de l'acheteur.",
       "aVerifier": true,
       "messageOk": "Le SIREN du client est renseigné.",
       "commentCorriger": "Renseignez le SIREN (9 chiffres) du client dans l'identification de l'acheteur.",
-      "infobulle": "L'identification de l'acheteur par son SIREN est au cœur de la réforme (routage des factures)."
+      "infobulle": "Le SIREN du client est une nouvelle mention obligatoire ; il sert au routage des factures entre plateformes."
     },
     {
       "id": "MEN-003",
       "libelle": "Numéro de TVA intracommunautaire de l'émetteur",
       "categorie": "mentions",
       "severite": "avertissement",
-      "source": null,
+      "source": "CGI art. 242 nonies A — numéro de TVA intracommunautaire ; EN 16931 BT-31.",
       "aVerifier": true,
       "messageOk": "Le numéro de TVA de l'émetteur est renseigné.",
       "commentCorriger": "Renseignez le numéro de TVA intracommunautaire de l'émetteur (ex. FR + 11 caractères), sauf cas d'exonération (franchise en base).",
@@ -37,25 +37,36 @@
     },
     {
       "id": "MEN-004",
-      "libelle": "Adresse de livraison renseignée",
+      "libelle": "Adresse de livraison (si différente de la facturation)",
       "categorie": "mentions",
       "severite": "avertissement",
-      "source": null,
+      "source": "Réforme CTC — nouvelle mention : adresse de livraison lorsqu'elle diffère de l'adresse de facturation.",
       "aVerifier": true,
       "messageOk": "Une adresse de livraison est présente.",
       "commentCorriger": "Lorsque l'adresse de livraison diffère de l'adresse de facturation, renseignez-la dans la section Livraison.",
-      "infobulle": "Lieu de livraison des biens ou d'exécution de la prestation."
+      "infobulle": "Obligatoire uniquement quand le lieu de livraison diffère de l'adresse de facturation."
     },
     {
       "id": "MEN-005",
-      "libelle": "Nature de l'opération renseignée",
+      "libelle": "Catégorie de l'opération (LB / PS / LBPS)",
       "categorie": "mentions",
       "severite": "avertissement",
-      "source": null,
+      "source": "Réforme CTC — nouvelle mention : catégorie d'opération (livraison de biens, prestation de services, ou les deux).",
       "aVerifier": true,
-      "messageOk": "La nature de l'opération est renseignée.",
-      "commentCorriger": "Précisez la nature de l'opération (livraison de biens, prestation de services, ou les deux).",
-      "infobulle": "La nature de l'opération conditionne certaines règles de TVA et de e-reporting."
+      "messageOk": "La catégorie de l'opération est renseignée.",
+      "commentCorriger": "Précisez la catégorie de l'opération : LB (livraison de biens), PS (prestations de services) ou LBPS (les deux).",
+      "infobulle": "LB = livraison de biens ; PS = prestations de services ; LBPS = les deux. Conditionne des règles de TVA et le e-reporting."
+    },
+    {
+      "id": "MEN-006",
+      "libelle": "Référence d'exonération de TVA (si applicable)",
+      "categorie": "mentions",
+      "severite": "avertissement",
+      "source": "CGI — mention de la disposition légale en cas d'exonération / franchise en base ; EN 16931 BT-120/BT-121.",
+      "aVerifier": true,
+      "messageOk": "Une référence d'exonération est présente.",
+      "commentCorriger": "Lorsqu'une opération est exonérée (TVA à 0), indiquez la référence à la disposition légale justifiant l'exonération.",
+      "infobulle": "En cas d'exonération ou de franchise en base, la facture doit citer le texte applicable."
     }
   ]
 }

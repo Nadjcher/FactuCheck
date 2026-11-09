@@ -1,0 +1,12 @@
+{
+  "description": "Motifs de refus d'une facture (décision du client). La liste officielle est définie par la norme AFNOR XP Z12-012. À COMPLÉTER et à confirmer depuis la norme (révisée en juin 2026).",
+  "source": "AFNOR XP Z12-012 — liste des motifs de refus.",
+  "aVerifier": true,
+  "motifs": [
+    { "code": "TVA_ERRONEE", "libelle": "Taux ou montant de TVA erroné", "aVerifier": true },
+    { "code": "MONTANT_TOTAL_ERRONE", "libelle": "Montant total erroné", "aVerifier": true },
+    { "code": "REFERENCE_MANQUANTE", "libelle": "Référence de commande / contrat manquante ou erronée", "aVerifier": true },
+    { "code": "DESTINATAIRE_ERRONE", "libelle": "Destinataire / SIREN erroné", "aVerifier": true },
+    { "code": "AUTRE", "libelle": "Autre motif (à préciser)", "aVerifier": true }
+  ]
+}

@@ -32,7 +32,7 @@ describe("parsing", () => {
     expect(inv.montantHT).toBe(1000);
     expect(inv.montantTVA).toBe(200);
     expect(inv.montantTTC).toBe(1200);
-    expect(inv.profilFacturx).toBe("BASIC");
+    expect(inv.profilFacturx).toBe("EN 16931");
   });
 
   it("extrait les champs clés d'une facture UBL", () => {
@@ -66,6 +66,11 @@ describe("évaluation — facture valide", () => {
     const f = report.findings.find((x) => x.ruleId === "MNT-001");
     expect(f?.statut).toBe("reussi");
   });
+
+  it("accepte le profil EN 16931 (FMT-003)", () => {
+    const f = report.findings.find((x) => x.ruleId === "FMT-003");
+    expect(f?.statut).toBe("reussi");
+  });
 });
 
 describe("évaluation — facture invalide", () => {
@@ -91,6 +96,11 @@ describe("évaluation — facture invalide", () => {
     const f = report.findings.find((x) => x.ruleId === "MEN-004");
     expect(f?.statut).toBe("avertissement");
   });
+
+  it("bloque sur le profil BASIC refusé par les plateformes (FMT-003)", () => {
+    const f = report.findings.find((x) => x.ruleId === "FMT-003");
+    expect(f?.statut).toBe("bloquant");
+  });
 });
 
 describe("catalogue de règles", () => {
@@ -103,12 +113,16 @@ describe("catalogue de règles", () => {
     }
   });
 
-  it("toutes les règles sont encore marquées « À VÉRIFIER » (source non confirmée)", () => {
-    // Garde-fou : tant qu'une source officielle n'est pas renseignée,
-    // aVerifier doit rester true et source null.
+  it("toute règle non sourcée est marquée « À VÉRIFIER »", () => {
+    // Garde-fou : une règle sans source officielle DOIT rester « À VÉRIFIER ».
     for (const r of REGLES) {
-      if (r.aVerifier) expect(r.source).toBeNull();
-      if (r.source) expect(r.aVerifier).toBe(false);
+      if (!r.source) expect(r.aVerifier).toBe(true);
+    }
+  });
+
+  it("une règle réputée vérifiée (aVerifier=false) a forcément une source", () => {
+    for (const r of REGLES) {
+      if (!r.aVerifier) expect(r.source).toBeTruthy();
     }
   });
 

@@ -37,10 +37,14 @@ function parseParty(party: unknown): Partie {
 function detectProfil(urn: string | null): ProfilFacturx {
   if (!urn) return null;
   const u = urn.toLowerCase();
+  // L'ordre compte : les profils les plus spécifiques d'abord.
   if (u.includes("minimum")) return "MINIMUM";
   if (u.includes("basicwl")) return "BASIC WL";
   if (u.includes("basic")) return "BASIC";
-  if (u.includes("extended")) return "EXTENDED";
+  if (u.includes("extended")) {
+    // Profil français CTC (EXTENDED-CTC-FR) vs EXTENDED standard.
+    return u.includes("ctc") ? "EXTENDED-CTC-FR" : "EXTENDED";
+  }
   if (u.includes("en16931") || u.includes("compliant")) return "EN 16931";
   return null;
 }

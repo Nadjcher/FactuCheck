@@ -2,6 +2,7 @@
 // Les métadonnées (libellé, sévérité, source, « à vérifier ») vivent dans
 // `rules/*.json`. Ici vit UNIQUEMENT la logique de contrôle.
 import type { CheckFn, ParsedInvoice } from "./types";
+import { PROFILS_ACCEPTES } from "./types";
 import { formaterEuro } from "../format";
 
 const ok = (detail?: string) => ({ applicable: true, passed: true, detail });
@@ -48,6 +49,18 @@ export const checks: Record<string, CheckFn> = {
     return inv.profilFacturx
       ? ok(`Profil : ${inv.profilFacturx}.`)
       : ko("Profil Factur-X non identifié.");
+  },
+
+  // Piège fréquent : un fichier correct en BASIC est refusé par la plateforme
+  // car seuls EN 16931 et EXTENDED-CTC-FR passent les contrôles.
+  "FMT-003": (inv) => {
+    if (inv.format === "UBL") return na();
+    if (!inv.profilFacturx) return na();
+    return PROFILS_ACCEPTES.includes(inv.profilFacturx)
+      ? ok(`Profil accepté : ${inv.profilFacturx}.`)
+      : ko(
+          `Le profil « ${inv.profilFacturx} » est généralement refusé par les plateformes. Utilisez EN 16931 ou EXTENDED-CTC-FR.`,
+        );
   },
 
   // --- PDF / conteneur Factur-X ------------------------------------------
@@ -104,7 +117,18 @@ export const checks: Record<string, CheckFn> = {
     inv.adresseLivraisonPresente ? ok() : ko("Aucune adresse de livraison renseignée."),
 
   "MEN-005": (inv) =>
-    inv.natureOperation ? ok() : ko("Nature de l'opération non renseignée."),
+    inv.natureOperation ? ok() : ko("Catégorie de l'opération non renseignée."),
+
+  // Applicable seulement si l'opération semble exonérée (TVA = 0).
+  "MEN-006": (inv) => {
+    if (inv.montantTVA == null || inv.montantTVA > 0) return na();
+    const ref = inv.natureOperation ?? "";
+    const aReference =
+      /exonér|franchise|art(icle|\.)\s*\d|tva\s*non\s*applicable|directive/i.test(ref);
+    return aReference
+      ? ok("Référence d'exonération détectée.")
+      : ko("Opération exonérée (TVA = 0) sans référence légale visible.");
+  },
 
   // --- Montants -----------------------------------------------------------
   "MNT-001": (inv) => {

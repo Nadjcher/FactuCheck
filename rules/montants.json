@@ -1,13 +1,13 @@
 {
   "fichier": "montants",
-  "description": "Cohérence des montants.",
+  "description": "Cohérence des montants. Identifiants EN 16931 (BR-CO-xx) à confirmer sur le schematron officiel.",
   "regles": [
     {
       "id": "MNT-001",
-      "libelle": "Cohérence HT + TVA = TTC",
+      "libelle": "Cohérence HT + TVA = TTC (BR-CO-15)",
       "categorie": "montants",
       "severite": "bloquant",
-      "source": null,
+      "source": "EN 16931 — BR-CO-15 (Grand total = total HT + total TVA). Identifiant à confirmer sur le schematron.",
       "aVerifier": true,
       "messageOk": "Total TTC = Total HT + Total TVA.",
       "commentCorriger": "Vérifiez votre calcul : le Total TTC doit être égal au Total HT augmenté du Total de TVA (tolérance d'arrondi d'un centime).",
@@ -15,10 +15,10 @@
     },
     {
       "id": "MNT-002",
-      "libelle": "Montant TTC présent",
+      "libelle": "Montant TTC (dû) présent",
       "categorie": "montants",
       "severite": "bloquant",
-      "source": null,
+      "source": "EN 16931 — montant dû (BT-115) ; mentions obligatoires CGI art. 242 nonies A.",
       "aVerifier": true,
       "messageOk": "Le montant TTC est renseigné.",
       "commentCorriger": "Le montant total TTC (montant dû) doit être présent dans le récapitulatif des montants.",
@@ -26,10 +26,10 @@
     },
     {
       "id": "MNT-003",
-      "libelle": "Montants positifs",
+      "libelle": "Montants positifs (facture vs avoir)",
       "categorie": "montants",
       "severite": "avertissement",
-      "source": null,
+      "source": "EN 16931 — type de document (BT-3) : 380 facture / 381 avoir. Identifiant à confirmer.",
       "aVerifier": true,
       "messageOk": "Les montants sont positifs.",
       "commentCorriger": "Des montants négatifs ne sont attendus que pour un avoir. Pour une facture, vérifiez les signes.",
