@@ -1,0 +1,50 @@
+{
+  "fichier": "pdf-facturx",
+  "description": "Contrôles propres au conteneur PDF Factur-X (PDF/A-3, XML embarqué, XMP). Non applicables aux fichiers purement XML (UBL/CII).",
+  "regles": [
+    {
+      "id": "PDF-001",
+      "libelle": "Conformité PDF/A-3",
+      "categorie": "pdf",
+      "severite": "bloquant",
+      "source": null,
+      "aVerifier": true,
+      "messageOk": "Le PDF se déclare conforme PDF/A-3.",
+      "commentCorriger": "Un PDF Factur-X doit être un PDF/A-3. Régénérez le document avec un export PDF/A-3 (les métadonnées XMP doivent déclarer pdfaid:part = 3).",
+      "infobulle": "PDF/A-3 est la version du format PDF qui autorise l'ajout d'un fichier joint (ici le XML de facture)."
+    },
+    {
+      "id": "PDF-002",
+      "libelle": "XML embarqué présent",
+      "categorie": "pdf",
+      "severite": "bloquant",
+      "source": null,
+      "aVerifier": true,
+      "messageOk": "Un XML de facture est embarqué dans le PDF.",
+      "commentCorriger": "Le PDF doit contenir le XML structuré de la facture en pièce jointe. Vérifiez votre module d'export Factur-X.",
+      "infobulle": "Dans Factur-X, les données structurées sont jointes au PDF sous forme d'un fichier XML."
+    },
+    {
+      "id": "PDF-003",
+      "libelle": "XML embarqué nommé factur-x.xml",
+      "categorie": "pdf",
+      "severite": "avertissement",
+      "source": null,
+      "aVerifier": true,
+      "messageOk": "Le fichier embarqué porte le nom attendu.",
+      "commentCorriger": "Le fichier XML joint devrait être nommé exactement « factur-x.xml ». Un autre nom (ex. ZUGFeRD-invoice.xml) peut provoquer un rejet selon la plateforme.",
+      "infobulle": "Le nom de fichier normalisé permet aux plateformes de retrouver le XML automatiquement."
+    },
+    {
+      "id": "PDF-004",
+      "libelle": "Métadonnées XMP présentes",
+      "categorie": "pdf",
+      "severite": "avertissement",
+      "source": null,
+      "aVerifier": true,
+      "messageOk": "Des métadonnées XMP ont été détectées.",
+      "commentCorriger": "Le PDF doit porter des métadonnées XMP décrivant le fichier Factur-X embarqué. Vérifiez la configuration de votre générateur PDF/A-3.",
+      "infobulle": "XMP : métadonnées intégrées au PDF, décrivant notamment le type et le nom du fichier joint."
+    }
+  ]
+}

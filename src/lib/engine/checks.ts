@@ -1,0 +1,160 @@
+// Implémentation technique de chaque règle, associée par son `id`.
+// Les métadonnées (libellé, sévérité, source, « à vérifier ») vivent dans
+// `rules/*.json`. Ici vit UNIQUEMENT la logique de contrôle.
+import type { CheckFn, ParsedInvoice } from "./types";
+import { formaterEuro } from "../format";
+
+const ok = (detail?: string) => ({ applicable: true, passed: true, detail });
+const ko = (detail?: string) => ({ applicable: true, passed: false, detail });
+const na = () => ({ applicable: false, passed: false });
+
+function sirenValide(s: string | null): boolean {
+  if (!s) return false;
+  return /^\d{9}$/.test(s.replace(/\s/g, ""));
+}
+
+/** Date AAAAMMJJ ou ISO ; valide et non située dans le futur. */
+function dateValideEtPassee(s: string | null): boolean {
+  if (!s) return false;
+  const compact = s.match(/^(\d{4})(\d{2})(\d{2})$/);
+  const iso = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  const parts = compact ?? iso;
+  if (!parts) return false;
+  const y = +parts[1];
+  const m = +parts[2];
+  const d = +parts[3];
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  const reelle =
+    dt.getUTCFullYear() === y &&
+    dt.getUTCMonth() === m - 1 &&
+    dt.getUTCDate() === d;
+  if (!reelle) return false;
+  // tolérance : fin de journée courante
+  return dt.getTime() <= Date.now() + 24 * 3600 * 1000;
+}
+
+const montantsPresents = (inv: ParsedInvoice) =>
+  inv.montantHT != null && inv.montantTVA != null && inv.montantTTC != null;
+
+export const checks: Record<string, CheckFn> = {
+  // --- Format -------------------------------------------------------------
+  "FMT-001": (inv) =>
+    inv.format !== "INCONNU"
+      ? ok(`Format détecté : ${inv.format}.`)
+      : ko("Aucun format de facture électronique reconnu."),
+
+  "FMT-002": (inv) => {
+    if (inv.format === "UBL") return na();
+    return inv.profilFacturx
+      ? ok(`Profil : ${inv.profilFacturx}.`)
+      : ko("Profil Factur-X non identifié.");
+  },
+
+  // --- PDF / conteneur Factur-X ------------------------------------------
+  "PDF-001": (inv) =>
+    !inv.pdf.estPdf
+      ? na()
+      : inv.pdf.estPdfA3
+        ? ok()
+        : ko("Le PDF ne se déclare pas conforme PDF/A-3."),
+
+  "PDF-002": (inv) =>
+    !inv.pdf.estPdf
+      ? na()
+      : inv.pdf.aXmlEmbarque
+        ? ok()
+        : ko("Aucun XML embarqué détecté dans le PDF."),
+
+  "PDF-003": (inv) => {
+    if (!inv.pdf.estPdf || !inv.pdf.aXmlEmbarque) return na();
+    const nom = inv.pdf.nomXmlEmbarque?.toLowerCase() ?? null;
+    return nom === "factur-x.xml"
+      ? ok()
+      : ko(`Fichier embarqué nommé « ${inv.pdf.nomXmlEmbarque ?? "inconnu"} ».`);
+  },
+
+  "PDF-004": (inv) =>
+    !inv.pdf.estPdf ? na() : inv.pdf.aXmp ? ok() : ko("Aucune métadonnée XMP détectée."),
+
+  // --- Mentions obligatoires ---------------------------------------------
+  "MEN-001": (inv) =>
+    sirenValide(inv.emetteur.siren)
+      ? ok(`SIREN émetteur : ${inv.emetteur.siren}.`)
+      : ko(
+          inv.emetteur.siren
+            ? `SIREN émetteur invalide : « ${inv.emetteur.siren} ».`
+            : "SIREN de l'émetteur absent.",
+        ),
+
+  "MEN-002": (inv) =>
+    sirenValide(inv.client.siren)
+      ? ok(`SIREN client : ${inv.client.siren}.`)
+      : ko(
+          inv.client.siren
+            ? `SIREN client invalide : « ${inv.client.siren} ».`
+            : "SIREN du client absent.",
+        ),
+
+  "MEN-003": (inv) =>
+    inv.emetteur.numeroTVA
+      ? ok(`N° TVA émetteur : ${inv.emetteur.numeroTVA}.`)
+      : ko("Numéro de TVA de l'émetteur absent."),
+
+  "MEN-004": (inv) =>
+    inv.adresseLivraisonPresente ? ok() : ko("Aucune adresse de livraison renseignée."),
+
+  "MEN-005": (inv) =>
+    inv.natureOperation ? ok() : ko("Nature de l'opération non renseignée."),
+
+  // --- Montants -----------------------------------------------------------
+  "MNT-001": (inv) => {
+    if (!montantsPresents(inv)) return na();
+    const ht = inv.montantHT!;
+    const tva = inv.montantTVA!;
+    const ttc = inv.montantTTC!;
+    const ecart = Math.abs(ht + tva - ttc);
+    return ecart <= 0.01
+      ? ok(`${formaterEuro(ht)} + ${formaterEuro(tva)} = ${formaterEuro(ttc)}.`)
+      : ko(
+          `${formaterEuro(ht)} + ${formaterEuro(tva)} = ${formaterEuro(ht + tva)} ≠ TTC ${formaterEuro(ttc)} (écart ${formaterEuro(ecart)}).`,
+        );
+  },
+
+  "MNT-002": (inv) =>
+    inv.montantTTC != null
+      ? ok(`Total TTC : ${formaterEuro(inv.montantTTC)}.`)
+      : ko("Montant TTC absent."),
+
+  "MNT-003": (inv) => {
+    const vals = [inv.montantHT, inv.montantTVA, inv.montantTTC].filter(
+      (v): v is number => v != null,
+    );
+    if (vals.length === 0) return na();
+    return vals.every((v) => v >= 0) ? ok() : ko("Au moins un montant est négatif.");
+  },
+
+  // --- Dates & numérotation ----------------------------------------------
+  "DAT-001": (inv) =>
+    inv.dateEmission ? ok() : ko("Date d'émission absente."),
+
+  "DAT-002": (inv) => {
+    if (!inv.dateEmission) return na();
+    return dateValideEtPassee(inv.dateEmission)
+      ? ok()
+      : ko(`Date d'émission invalide ou future : « ${inv.dateEmission} ».`);
+  },
+
+  "NUM-001": (inv) =>
+    inv.numero && inv.numero.trim() !== ""
+      ? ok(`Numéro : ${inv.numero}.`)
+      : ko("Numéro de facture absent."),
+
+  "NUM-002": (inv) => {
+    if (!inv.numero) return na();
+    const propre =
+      inv.numero.trim() === inv.numero &&
+      inv.numero.length > 0 &&
+      !/[\\/<>]/.test(inv.numero);
+    return propre ? ok() : ko("Le numéro contient des caractères ou espaces problématiques.");
+  },
+};

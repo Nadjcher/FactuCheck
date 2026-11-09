@@ -1,0 +1,28 @@
+{
+  "fichier": "format",
+  "description": "Détection du format et du profil Factur-X.",
+  "regles": [
+    {
+      "id": "FMT-001",
+      "libelle": "Format de facture électronique reconnu",
+      "categorie": "format",
+      "severite": "bloquant",
+      "source": null,
+      "aVerifier": true,
+      "messageOk": "Le format a été reconnu.",
+      "commentCorriger": "Le fichier doit être une facture au format Factur-X (PDF/A-3 + XML), UBL ou CII. Exportez votre facture depuis votre logiciel dans l'un de ces formats agréés.",
+      "infobulle": "Factur-X : PDF lisible contenant un XML structuré. UBL et CII : formats 100 % XML."
+    },
+    {
+      "id": "FMT-002",
+      "libelle": "Profil Factur-X identifié",
+      "categorie": "format",
+      "severite": "avertissement",
+      "source": null,
+      "aVerifier": true,
+      "messageOk": "Le profil Factur-X a été identifié.",
+      "commentCorriger": "Le profil (MINIMUM, BASIC WL, BASIC, EN 16931, EXTENDED) doit être déclaré dans le contexte du document. Vérifiez l'identifiant de spécification (GuidelineSpecifiedDocumentContextParameter).",
+      "infobulle": "Le profil indique le niveau de détail des données structurées de la facture."
+    }
+  ]
+}

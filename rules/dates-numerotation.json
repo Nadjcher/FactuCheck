@@ -1,0 +1,50 @@
+{
+  "fichier": "dates-numerotation",
+  "description": "Dates et numérotation.",
+  "regles": [
+    {
+      "id": "DAT-001",
+      "libelle": "Date d'émission présente",
+      "categorie": "dates",
+      "severite": "bloquant",
+      "source": null,
+      "aVerifier": true,
+      "messageOk": "La date d'émission est renseignée.",
+      "commentCorriger": "Renseignez la date d'émission de la facture.",
+      "infobulle": "Date à laquelle la facture est établie."
+    },
+    {
+      "id": "DAT-002",
+      "libelle": "Date d'émission valide",
+      "categorie": "dates",
+      "severite": "avertissement",
+      "source": null,
+      "aVerifier": true,
+      "messageOk": "La date d'émission est valide.",
+      "commentCorriger": "La date doit être une date réelle au format attendu (AAAAMMJJ dans le XML). Vérifiez qu'elle n'est pas dans le futur.",
+      "infobulle": "Dans le XML, les dates sont souvent codées AAAAMMJJ (ex. 20260115)."
+    },
+    {
+      "id": "NUM-001",
+      "libelle": "Numéro de facture présent",
+      "categorie": "numerotation",
+      "severite": "bloquant",
+      "source": null,
+      "aVerifier": true,
+      "messageOk": "Le numéro de facture est renseigné.",
+      "commentCorriger": "Attribuez un numéro de facture unique et séquentiel.",
+      "infobulle": "La numérotation doit être chronologique, continue et sans trou."
+    },
+    {
+      "id": "NUM-002",
+      "libelle": "Numéro de facture non vide et exploitable",
+      "categorie": "numerotation",
+      "severite": "avertissement",
+      "source": null,
+      "aVerifier": true,
+      "messageOk": "Le numéro de facture est exploitable.",
+      "commentCorriger": "Évitez les espaces superflus ou caractères spéciaux ambigus dans le numéro de facture.",
+      "infobulle": "Un numéro propre facilite le rapprochement automatique côté plateforme."
+    }
+  ]
+}

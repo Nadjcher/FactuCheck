@@ -1,0 +1,61 @@
+{
+  "fichier": "mentions",
+  "description": "Mentions obligatoires de la facture.",
+  "regles": [
+    {
+      "id": "MEN-001",
+      "libelle": "SIREN de l'émetteur présent",
+      "categorie": "mentions",
+      "severite": "bloquant",
+      "source": null,
+      "aVerifier": true,
+      "messageOk": "Le SIREN de l'émetteur est renseigné.",
+      "commentCorriger": "Renseignez le SIREN (9 chiffres) de l'entreprise émettrice dans l'identification du vendeur.",
+      "infobulle": "SIREN : identifiant unique à 9 chiffres d'une entreprise française."
+    },
+    {
+      "id": "MEN-002",
+      "libelle": "SIREN du client présent",
+      "categorie": "mentions",
+      "severite": "bloquant",
+      "source": null,
+      "aVerifier": true,
+      "messageOk": "Le SIREN du client est renseigné.",
+      "commentCorriger": "Renseignez le SIREN (9 chiffres) du client dans l'identification de l'acheteur.",
+      "infobulle": "L'identification de l'acheteur par son SIREN est au cœur de la réforme (routage des factures)."
+    },
+    {
+      "id": "MEN-003",
+      "libelle": "Numéro de TVA intracommunautaire de l'émetteur",
+      "categorie": "mentions",
+      "severite": "avertissement",
+      "source": null,
+      "aVerifier": true,
+      "messageOk": "Le numéro de TVA de l'émetteur est renseigné.",
+      "commentCorriger": "Renseignez le numéro de TVA intracommunautaire de l'émetteur (ex. FR + 11 caractères), sauf cas d'exonération (franchise en base).",
+      "infobulle": "Numéro de TVA intracommunautaire : identifiant fiscal commençant par le code pays (FR pour la France)."
+    },
+    {
+      "id": "MEN-004",
+      "libelle": "Adresse de livraison renseignée",
+      "categorie": "mentions",
+      "severite": "avertissement",
+      "source": null,
+      "aVerifier": true,
+      "messageOk": "Une adresse de livraison est présente.",
+      "commentCorriger": "Lorsque l'adresse de livraison diffère de l'adresse de facturation, renseignez-la dans la section Livraison.",
+      "infobulle": "Lieu de livraison des biens ou d'exécution de la prestation."
+    },
+    {
+      "id": "MEN-005",
+      "libelle": "Nature de l'opération renseignée",
+      "categorie": "mentions",
+      "severite": "avertissement",
+      "source": null,
+      "aVerifier": true,
+      "messageOk": "La nature de l'opération est renseignée.",
+      "commentCorriger": "Précisez la nature de l'opération (livraison de biens, prestation de services, ou les deux).",
+      "infobulle": "La nature de l'opération conditionne certaines règles de TVA et de e-reporting."
+    }
+  ]
+}

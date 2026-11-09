@@ -1,0 +1,39 @@
+"use client";
+
+import * as React from "react";
+import { Moon, Sun } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+export function ThemeToggle() {
+  const [dark, setDark] = React.useState(false);
+
+  React.useEffect(() => {
+    setDark(document.documentElement.classList.contains("dark"));
+  }, []);
+
+  function toggle() {
+    const next = !dark;
+    setDark(next);
+    document.documentElement.classList.toggle("dark", next);
+    try {
+      localStorage.setItem("factucheck-theme", next ? "dark" : "light");
+    } catch {
+      /* stockage indisponible : on ignore */
+    }
+  }
+
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={toggle}
+      aria-label={dark ? "Activer le mode clair" : "Activer le mode sombre"}
+    >
+      {dark ? (
+        <Sun className="h-5 w-5" aria-hidden="true" />
+      ) : (
+        <Moon className="h-5 w-5" aria-hidden="true" />
+      )}
+    </Button>
+  );
+}
