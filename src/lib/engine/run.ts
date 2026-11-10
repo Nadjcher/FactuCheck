@@ -111,6 +111,12 @@ export async function analyserFichierComplet(fichier: EntreeFichier): Promise<{
   const report = evaluer(parsed);
   const schematron = await validerSchematron(parsed.xmlSource, parsed.format);
   report.schematron = schematron;
-  if (schematron.bloquants > 0) report.conforme = false;
+  if (schematron.execute) {
+    // Le score global intègre les contrôles officiels : un bloquant pèse lourd,
+    // un avertissement légèrement, pour rester cohérent avec le verdict.
+    const avert = schematron.findings.length - schematron.bloquants;
+    report.score = Math.max(0, report.score - schematron.bloquants * 12 - avert * 2);
+    if (schematron.bloquants > 0) report.conforme = false;
+  }
   return { parsed, report };
 }

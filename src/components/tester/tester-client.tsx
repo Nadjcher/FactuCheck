@@ -243,7 +243,7 @@ export function TesterClient() {
               </span>
               <button
                 onClick={() => retirer(i)}
-                className="text-muted-foreground hover:text-danger"
+                className="-mr-1 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-danger"
                 aria-label={`Retirer ${f.name}`}
               >
                 <X className="h-4 w-4" aria-hidden="true" />

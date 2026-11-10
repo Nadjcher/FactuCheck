@@ -1,4 +1,4 @@
-import { AlertCircle, Wrench, CheckCircle2, FileCheck2 } from "lucide-react";
+import { AlertCircle, PenLine, ShieldCheck, FileCheck2 } from "lucide-react";
 import type { Categorie, Report } from "@/lib/engine/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +9,7 @@ import { dict } from "@/lib/i18n";
 import { formaterDateHeure } from "@/lib/format";
 
 const CAT_LABELS: Record<Categorie, string> = {
-  format: "Format & profil",
+  format: "Format et profil",
   pdf: "Conteneur PDF (Factur-X)",
   mentions: "Mentions obligatoires",
   montants: "Montants",
@@ -19,31 +19,54 @@ const CAT_LABELS: Record<Categorie, string> = {
 
 const ORDRE: Categorie[] = ["format", "pdf", "mentions", "montants", "dates", "numerotation"];
 
+function SectionTitre({ children, compte }: { children: React.ReactNode; compte?: string }) {
+  return (
+    <div className="mb-3 flex items-baseline justify-between gap-4 border-b border-border pb-2">
+      <h3 className="text-base font-semibold text-foreground">{children}</h3>
+      {compte && <span className="text-sm text-muted-foreground tabular">{compte}</span>}
+    </div>
+  );
+}
+
 export function RapportVue({ nom, report }: { nom: string; report: Report }) {
   return (
-    <div className="space-y-6">
-      {/* Résumé */}
-      <Card className="print-break-avoid">
-        <CardContent className="flex flex-col items-center gap-6 p-6 sm:flex-row sm:items-center">
-          <ScoreRing score={report.score} conforme={report.conforme} />
-          <div className="flex-1 space-y-3 text-center sm:text-left">
-            <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
-              <h2 className="text-xl font-semibold" title={nom}>
-                {nom}
-              </h2>
-              <Badge tone={report.conforme ? "success" : "danger"}>
-                {report.conforme ? dict.statut.conforme : dict.statut.nonConforme}
-              </Badge>
+    <div className="space-y-8">
+      {/* Verdict */}
+      <Card className="overflow-hidden print-break-avoid">
+        <CardContent className="flex flex-col gap-6 p-6 sm:flex-row sm:items-center sm:gap-8">
+          <ScoreRing score={report.score} conforme={report.conforme} size={168} />
+          <div className="min-w-0 flex-1 space-y-3">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <FileCheck2 className="h-4 w-4 shrink-0" aria-hidden="true" />
+              <span className="truncate" title={nom}>{nom}</span>
+            </div>
+            <p
+              className={`font-display text-3xl font-semibold sm:text-4xl ${
+                report.conforme ? "text-success" : "text-danger"
+              }`}
+            >
+              {report.conforme ? dict.statut.conforme : dict.statut.nonConforme}
+            </p>
+            <div className="flex flex-wrap items-center gap-2">
               <Badge tone="neutral">{report.format}</Badge>
               {report.profilFacturx && <Badge tone="primary">{report.profilFacturx}</Badge>}
             </div>
-            <div className="flex flex-wrap justify-center gap-4 text-sm sm:justify-start">
-              <span className="text-success">● {report.counts.reussi} réussis</span>
-              <span className="text-warning">● {report.counts.avertissement} avertissements</span>
-              <span className="text-danger">● {report.counts.bloquant} bloquants</span>
-            </div>
+            <dl className="flex flex-wrap gap-x-6 gap-y-1 pt-1 text-sm">
+              <div className="flex items-center gap-1.5">
+                <span className="text-success tabular font-semibold">{report.counts.reussi}</span>
+                <dt className="text-muted-foreground">réussis</dt>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-warning tabular font-semibold">{report.counts.avertissement}</span>
+                <dt className="text-muted-foreground">avertissements</dt>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-danger tabular font-semibold">{report.counts.bloquant}</span>
+                <dt className="text-muted-foreground">bloquants</dt>
+              </div>
+            </dl>
             <p className="text-xs text-muted-foreground">
-              Rapport généré le {formaterDateHeure(report.genereLe)}
+              Analyse du {formaterDateHeure(report.genereLe)}
             </p>
           </div>
         </CardContent>
@@ -60,44 +83,39 @@ export function RapportVue({ nom, report }: { nom: string; report: Report }) {
       )}
 
       {report.contientReglesAVerifier && (
-        <div className="rounded-lg border border-warning/40 bg-warning-soft p-4 text-sm">
-          <p className="flex items-center gap-2 font-medium text-warning">
-            <Badge tone="warning">{dict.commun.aVerifier}</Badge>
-            Résultats indicatifs
+        <div className="flex items-start gap-3 rounded-lg border border-warning/40 bg-warning-soft p-4 text-sm">
+          <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-warning" aria-hidden="true" />
+          <p className="max-w-prose text-foreground/80">
+            <span className="font-medium text-warning">Résultats indicatifs. </span>
+            {dict.legal.avertissementRegles}
           </p>
-          <p className="mt-1 text-muted-foreground">{dict.legal.avertissementRegles}</p>
         </div>
       )}
 
       {/* Contrôles officiels (Schematron) */}
       {report.schematron && (
         <section className="print-break-avoid">
-          <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-            <FileCheck2 className="h-4 w-4" aria-hidden="true" />
-            Contrôles officiels (Schematron)
-          </h3>
+          <SectionTitre>Contrôles officiels (Schematron)</SectionTitre>
           {!report.schematron.execute ? (
-            <p className="rounded-md border border-border bg-muted/40 p-3 text-sm text-muted-foreground">
+            <p className="rounded-lg border border-border bg-muted/40 p-3 text-sm text-muted-foreground">
               Non exécutés : {report.schematron.note}
             </p>
           ) : report.schematron.findings.length === 0 ? (
-            <div className="flex items-center gap-2 rounded-md border border-success/40 bg-success-soft p-3 text-sm text-success">
-              <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
-              Aucune anomalie détectée. Source : {report.schematron.source}.
+            <div className="flex items-center gap-2 rounded-lg border border-success/30 bg-success-soft p-3 text-sm text-success">
+              <ShieldCheck className="h-4 w-4 shrink-0" aria-hidden="true" />
+              Aucune anomalie. Source&nbsp;: {report.schematron.source}.
             </div>
           ) : (
             <div className="space-y-2">
-              <p className="text-xs text-muted-foreground">
-                Source : {report.schematron.source}
-              </p>
+              <p className="text-xs text-muted-foreground">Source&nbsp;: {report.schematron.source}</p>
               {report.schematron.findings.map((f, i) => (
                 <Card key={`${f.ruleId}-${i}`} className="print-break-avoid">
-                  <CardContent className="p-4">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <span className="font-mono text-sm font-medium">{f.ruleId}</span>
-                      <StatutBadge statut={f.statut} />
+                  <CardContent className="flex flex-wrap items-start justify-between gap-3 p-4">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-mono text-xs text-muted-foreground">{f.ruleId}</p>
+                      <p className="mt-1 text-sm">{f.message}</p>
                     </div>
-                    <p className="mt-1 text-sm text-muted-foreground">{f.message}</p>
+                    <StatutBadge statut={f.statut} />
                   </CardContent>
                 </Card>
               ))}
@@ -110,11 +128,10 @@ export function RapportVue({ nom, report }: { nom: string; report: Report }) {
       {ORDRE.map((cat) => {
         const items = report.findings.filter((f) => f.categorie === cat);
         if (items.length === 0) return null;
+        const ok = items.filter((f) => f.statut === "reussi").length;
         return (
           <section key={cat} className="print-break-avoid">
-            <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-              {CAT_LABELS[cat]}
-            </h3>
+            <SectionTitre compte={`${ok}/${items.length}`}>{CAT_LABELS[cat]}</SectionTitre>
             <div className="space-y-2">
               {items.map((f) => (
                 <Card key={f.ruleId} className="print-break-avoid">
@@ -127,24 +144,25 @@ export function RapportVue({ nom, report }: { nom: string; report: Report }) {
                       </div>
                       <StatutBadge statut={f.statut} />
                     </div>
-                    <p className="mt-1 text-sm text-muted-foreground">{f.message}</p>
+                    <p className="mt-1.5 text-sm text-muted-foreground">{f.message}</p>
                     {f.commentCorriger && (
-                      <div className="mt-3 flex items-start gap-2 rounded-md bg-muted p-3 text-sm">
-                        <Wrench className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
-                        <div>
-                          <span className="font-medium">{dict.commun.commentCorriger} : </span>
+                      <div className="mt-3 flex items-start gap-2.5 rounded-md bg-muted/60 p-3 text-sm">
+                        <PenLine className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                        <p>
+                          <span className="font-medium">{dict.commun.commentCorriger} — </span>
                           {f.commentCorriger}
-                        </div>
+                        </p>
                       </div>
                     )}
-                    <p className="mt-2 text-xs text-muted-foreground">
-                      {dict.commun.source} :{" "}
-                      {f.source ?? (
-                        <span className="italic">non renseignée ({dict.commun.aVerifier})</span>
-                      )}
-                      {" · "}
-                      <span className="font-mono">{f.ruleId}</span>
-                    </p>
+                    <div className="mt-2.5 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                      <span className="rounded border border-border bg-muted/50 px-1.5 py-0.5 font-mono text-[11px]">
+                        {f.ruleId}
+                      </span>
+                      <span>
+                        {dict.commun.source}&nbsp;:{" "}
+                        {f.source ?? <span className="italic">non renseignée</span>}
+                      </span>
+                    </div>
                   </CardContent>
                 </Card>
               ))}

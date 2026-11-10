@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { TrendingUp, FileCheck2, Gauge, ArrowRight } from "lucide-react";
+import { TrendingUp, FileCheck2, Gauge } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -141,12 +141,8 @@ export default function TableauDeBordPage() {
         <CardContent className="p-6">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-lg font-semibold">Factures récentes</h2>
-            <Link
-              href="/historique"
-              className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
-            >
+            <Link href="/historique" className="text-sm font-medium text-primary hover:underline">
               Tout l'historique
-              <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
             </Link>
           </div>
           <div className="overflow-x-auto">

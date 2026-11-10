@@ -1,20 +1,29 @@
 import Link from "next/link";
 import {
-  ArrowRight,
+  ChevronDown,
   Upload,
   ScanLine,
-  Wrench,
+  PenLine,
   ShieldCheck,
   MessageSquareText,
   Building2,
 } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { ScoreRing } from "@/components/score-ring";
+import { StatutBadge } from "@/components/statut-badge";
 import { TarifsGrid } from "@/components/tarifs-grid";
 import { dict } from "@/lib/i18n";
+import type { StatutFinding } from "@/lib/engine/types";
 
-const ETAPE_ICONS = [Upload, ScanLine, Wrench];
+const ETAPE_ICONS = [Upload, ScanLine, PenLine];
 const AVANTAGE_ICONS = [ShieldCheck, MessageSquareText, Building2];
+
+const APERCU: { t: string; statut: StatutFinding }[] = [
+  { t: "Cohérence HT + TVA = TTC", statut: "reussi" },
+  { t: "SIREN du client présent", statut: "reussi" },
+  { t: "Adresse de livraison", statut: "avertissement" },
+];
 
 const FAQ = [
   {
@@ -39,108 +48,100 @@ export default function LandingPage() {
   return (
     <>
       {/* Hero */}
-      <section className="border-b border-border bg-gradient-to-b from-primary/5 to-transparent">
-        <div className="container grid items-center gap-10 py-16 md:grid-cols-2 md:py-24">
-          <div className="space-y-6">
-            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
-              <ShieldCheck className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
+      <section className="border-b border-border">
+        <div className="container grid items-center gap-12 py-16 md:grid-cols-[1.05fr_0.95fr] md:py-24">
+          <div className="space-y-7">
+            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-sm text-muted-foreground">
+              <ShieldCheck className="h-4 w-4 text-primary" aria-hidden="true" />
               Réforme de la facturation électronique
             </span>
-            <h1 className="text-4xl font-bold leading-tight tracking-tight md:text-5xl">
+            <h1 className="max-w-[16ch] text-4xl font-semibold leading-[1.08] md:text-6xl">
               {dict.promesse}
-              <span className="block text-primary">{dict.sousPromesse}</span>
             </h1>
-            <p className="max-w-md text-lg text-muted-foreground">
-              Détectez les erreurs qui provoquent un rejet — avant de transmettre
-              votre facture. Un score clair, des corrections concrètes.
+            <p className="max-w-prose text-lg text-muted-foreground">
+              {dict.sousPromesse} Déposez une facture, obtenez un verdict clair et
+              les corrections précises — avant de la transmettre.
             </p>
             <div className="flex flex-col gap-3 sm:flex-row">
               <Link href="/tester" className={buttonVariants({ size: "lg" })}>
                 {dict.landing.ctaPrincipal}
-                <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
-              <Link
-                href="/tarifs"
-                className={buttonVariants({ variant: "outline", size: "lg" })}
-              >
+              <Link href="/tarifs" className={buttonVariants({ variant: "outline", size: "lg" })}>
                 {dict.landing.ctaSecondaire}
               </Link>
             </div>
             <p className="text-sm text-muted-foreground">{dict.landing.sansCompte}</p>
           </div>
 
-          {/* Aperçu visuel du score */}
-          <Card className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Score de conformité</p>
-                <p className="text-5xl font-bold tabular-nums text-success">92</p>
-              </div>
-              <div className="h-16 w-16 rounded-full bg-success-soft" />
-            </div>
-            <div className="mt-6 space-y-3">
-              {[
-                { t: "Cohérence des montants", s: "success", l: "Réussi" },
-                { t: "SIREN client présent", s: "success", l: "Réussi" },
-                { t: "Adresse de livraison", s: "warning", l: "Avertissement" },
-              ].map((row) => (
-                <div
-                  key={row.t}
-                  className="flex items-center justify-between rounded-md border border-border bg-background px-3 py-2 text-sm"
-                >
-                  <span>{row.t}</span>
-                  <span
-                    className={
-                      row.s === "success"
-                        ? "text-success font-medium"
-                        : "text-warning font-medium"
-                    }
-                  >
-                    {row.l}
-                  </span>
+          {/* Aperçu du verdict */}
+          <Card className="print-break-avoid">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-5">
+                <ScoreRing score={92} conforme size={120} />
+                <div>
+                  <p className="font-display text-2xl font-semibold text-success">
+                    {dict.statut.conforme}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    facture-2026-0148 · Factur-X
+                  </p>
                 </div>
-              ))}
-            </div>
+              </div>
+              <div className="mt-6 space-y-2">
+                {APERCU.map((row) => (
+                  <div
+                    key={row.t}
+                    className="flex items-center justify-between gap-3 rounded-md border border-border px-3 py-2.5 text-sm"
+                  >
+                    <span>{row.t}</span>
+                    <StatutBadge statut={row.statut} />
+                  </div>
+                ))}
+              </div>
+            </CardContent>
           </Card>
         </div>
       </section>
 
       {/* Démo 3 étapes */}
       <section id="produit" className="container py-16 md:py-24">
-        <h2 className="mb-12 text-center text-3xl font-bold tracking-tight">
+        <h2 className="mb-12 max-w-[20ch] text-3xl font-semibold md:text-4xl">
           {dict.landing.demoTitre}
         </h2>
-        <div className="grid gap-6 md:grid-cols-3">
+        <ol className="grid gap-px overflow-hidden rounded-xl border border-border bg-border md:grid-cols-3">
           {dict.landing.etapes.map((etape, i) => {
             const Icon = ETAPE_ICONS[i];
             return (
-              <Card key={etape.titre} className="p-6">
-                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <Icon className="h-6 w-6" aria-hidden="true" />
+              <li key={etape.titre} className="bg-card p-6">
+                <div className="mb-4 flex items-center gap-3">
+                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <Icon className="h-5 w-5" aria-hidden="true" />
+                  </span>
+                  <span className="font-display text-sm font-semibold text-muted-foreground tabular">
+                    Étape {i + 1}
+                  </span>
                 </div>
-                <h3 className="mb-2 text-lg font-semibold">{etape.titre}</h3>
+                <h3 className="mb-1.5 text-lg font-semibold">{etape.titre.replace(/^\d+\.\s*/, "")}</h3>
                 <p className="text-sm text-muted-foreground">{etape.texte}</p>
-              </Card>
+              </li>
             );
           })}
-        </div>
+        </ol>
       </section>
 
       {/* Avantages */}
       <section className="border-y border-border bg-muted/30">
         <div className="container py-16 md:py-24">
-          <h2 className="mb-12 text-center text-3xl font-bold tracking-tight">
+          <h2 className="mb-12 text-3xl font-semibold md:text-4xl">
             {dict.landing.avantagesTitre}
           </h2>
-          <div className="grid gap-6 md:grid-cols-3">
+          <div className="grid gap-x-10 gap-y-8 sm:grid-cols-3">
             {dict.landing.avantages.map((av, i) => {
               const Icon = AVANTAGE_ICONS[i];
               return (
-                <div key={av.titre} className="text-center">
-                  <div className="mx-auto mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                    <Icon className="h-6 w-6" aria-hidden="true" />
-                  </div>
-                  <h3 className="mb-2 text-lg font-semibold">{av.titre}</h3>
+                <div key={av.titre} className="border-t-2 border-primary/70 pt-4">
+                  <Icon className="mb-3 h-6 w-6 text-primary" aria-hidden="true" />
+                  <h3 className="mb-1.5 text-lg font-semibold">{av.titre}</h3>
                   <p className="text-sm text-muted-foreground">{av.texte}</p>
                 </div>
               );
@@ -151,8 +152,8 @@ export default function LandingPage() {
 
       {/* Tarifs */}
       <section id="tarifs" className="container py-16 md:py-24">
-        <div className="mb-12 text-center">
-          <h2 className="text-3xl font-bold tracking-tight">{dict.landing.tarifsTitre}</h2>
+        <div className="mb-12">
+          <h2 className="text-3xl font-semibold md:text-4xl">{dict.landing.tarifsTitre}</h2>
           <p className="mt-2 text-muted-foreground">{dict.landing.tarifsSousTitre}</p>
         </div>
         <TarifsGrid />
@@ -161,20 +162,18 @@ export default function LandingPage() {
       {/* FAQ */}
       <section className="border-t border-border bg-muted/30">
         <div className="container max-w-3xl py-16 md:py-24">
-          <h2 className="mb-10 text-center text-3xl font-bold tracking-tight">
-            {dict.landing.faqTitre}
-          </h2>
-          <div className="space-y-4">
+          <h2 className="mb-10 text-3xl font-semibold md:text-4xl">{dict.landing.faqTitre}</h2>
+          <div className="divide-y divide-border rounded-xl border border-border bg-card">
             {FAQ.map((item) => (
-              <details
-                key={item.q}
-                className="group rounded-lg border border-border bg-card p-5"
-              >
-                <summary className="flex cursor-pointer items-center justify-between font-medium">
+              <details key={item.q} className="group px-5">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 font-medium">
                   {item.q}
-                  <ArrowRight className="h-4 w-4 transition-transform group-open:rotate-90" aria-hidden="true" />
+                  <ChevronDown
+                    className="h-5 w-5 shrink-0 text-muted-foreground transition-transform group-open:rotate-180"
+                    aria-hidden="true"
+                  />
                 </summary>
-                <p className="mt-3 text-sm text-muted-foreground">{item.r}</p>
+                <p className="max-w-prose pb-4 text-sm text-muted-foreground">{item.r}</p>
               </details>
             ))}
           </div>
@@ -182,20 +181,25 @@ export default function LandingPage() {
       </section>
 
       {/* CTA final */}
-      <section className="container py-16 text-center md:py-24">
-        <h2 className="text-3xl font-bold tracking-tight">
-          Prêt à éliminer les rejets ?
-        </h2>
-        <p className="mx-auto mt-3 max-w-md text-muted-foreground">
-          Testez une facture maintenant. Résultat en moins de 10 secondes.
-        </p>
-        <Link
-          href="/tester"
-          className={buttonVariants({ size: "lg" }) + " mt-6"}
-        >
-          {dict.landing.ctaPrincipal}
-          <ArrowRight className="h-4 w-4" aria-hidden="true" />
-        </Link>
+      <section className="container py-16 md:py-24">
+        <Card className="bg-primary text-primary-foreground">
+          <CardContent className="flex flex-col items-start gap-5 p-8 md:flex-row md:items-center md:justify-between md:p-10">
+            <div>
+              <h2 className="text-2xl font-semibold text-primary-foreground md:text-3xl">
+                Prêt à éliminer les rejets ?
+              </h2>
+              <p className="mt-2 text-primary-foreground/75">
+                Testez une facture maintenant. Résultat en moins de 10 secondes.
+              </p>
+            </div>
+            <Link
+              href="/tester"
+              className="inline-flex h-12 shrink-0 items-center justify-center rounded-md bg-background px-7 font-medium text-foreground transition-opacity hover:opacity-90"
+            >
+              {dict.landing.ctaPrincipal}
+            </Link>
+          </CardContent>
+        </Card>
       </section>
     </>
   );
