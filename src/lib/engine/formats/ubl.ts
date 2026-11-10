@@ -55,5 +55,7 @@ export function parseUBL(
     montantTTC:
       toNumber(textAt(totals, "TaxInclusiveAmount")) ??
       toNumber(textAt(totals, "PayableAmount")),
+    // BT-8 : code d'exigibilité de la TVA (InvoicePeriod/DescriptionCode).
+    vatPointDateCode: textAt(inv, "InvoicePeriod.DescriptionCode"),
   };
 }

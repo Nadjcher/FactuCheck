@@ -85,13 +85,14 @@ Catalogue déclaratif : `rules/format.json`, `pdf-facturx.json`, `mentions.json`
 ## État d'avancement
 
 ### ✅ Fait (fonctionnel)
-- Moteur de règles complet + **23 tests unitaires** (factures valides/invalides)
+- Moteur de règles complet + **26 tests unitaires** (factures valides/invalides)
 - Catalogue `rules/*.json` **sourcé** (EN 16931, Factur-X FNFE-MPE, CGI, LF 2026),
-  marqué « À VÉRIFIER » en attente de validation experte
+  marqué « À VÉRIFIER » en attente de validation experte ; inclut le **BT-8**
+  (code d'exigibilité de la TVA, option « sur les débits »)
 - **Validation Schematron** branchée (CII + UBL) : exécute les `.sch` maison
   (sourcés) ou les artefacts officiels déposés dans `schematron/official/`, avec
-  les contrôles de calcul **au niveau ligne** (BR-CO-10/13) ; intégrée au score
-  et à la conformité, affichée dans le rapport
+  les contrôles de calcul **au niveau ligne et par taux** (BR-CO-10/13/15/17) ;
+  intégrée au score et à la conformité, affichée dans le rapport
 - Page **Tester une facture** : glisser-déposer, lot, **sans compte**, barre de
   progression, **facture d'exemple**
 - **Rapport détaillé** : score /100, erreurs en langage simple, « comment corriger »,

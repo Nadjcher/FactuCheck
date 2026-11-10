@@ -5,6 +5,7 @@ import {
   CII_VALIDE,
   UBL_VALIDE,
   CII_LIGNES_INCOHERENTES,
+  CII_TVA_INCOHERENTE,
   toBuffer,
 } from "./__fixtures__/invoices";
 
@@ -27,6 +28,18 @@ describe("validation Schematron", () => {
     expect(res.execute).toBe(true);
     expect(res.bloquants).toBeGreaterThan(0);
     expect(res.findings.some((f) => f.ruleId === "BR-CO-10")).toBe(true);
+  });
+
+  it("détecte une TVA par taux erronée (BR-CO-17)", async () => {
+    const res = await validerSchematron(CII_TVA_INCOHERENTE, "CII");
+    expect(res.execute).toBe(true);
+    expect(res.bloquants).toBeGreaterThan(0);
+    expect(res.findings.some((f) => f.ruleId === "BR-CO-17")).toBe(true);
+  });
+
+  it("ne signale pas BR-CO-17 sur une TVA par taux correcte", async () => {
+    const res = await validerSchematron(CII_VALIDE, "CII");
+    expect(res.findings.some((f) => f.ruleId === "BR-CO-17")).toBe(false);
   });
 
   it("se dégrade proprement sans XML", async () => {

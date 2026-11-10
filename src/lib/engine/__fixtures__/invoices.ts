@@ -37,11 +37,46 @@ export const CII_VALIDE = `<?xml version="1.0" encoding="UTF-8"?>
       </ram:ShipToTradeParty>
     </ram:ApplicableHeaderTradeDelivery>
     <ram:ApplicableHeaderTradeSettlement>
+      <ram:ApplicableTradeTax>
+        <ram:CalculatedAmount>200.00</ram:CalculatedAmount>
+        <ram:TypeCode>VAT</ram:TypeCode>
+        <ram:BasisAmount>1000.00</ram:BasisAmount>
+        <ram:CategoryCode>S</ram:CategoryCode>
+        <ram:DueDateTypeCode>5</ram:DueDateTypeCode>
+        <ram:RateApplicablePercent>20.00</ram:RateApplicablePercent>
+      </ram:ApplicableTradeTax>
       <ram:SpecifiedTradeSettlementHeaderMonetarySummation>
         <ram:TaxBasisTotalAmount>1000.00</ram:TaxBasisTotalAmount>
         <ram:TaxTotalAmount currencyID="EUR">200.00</ram:TaxTotalAmount>
         <ram:GrandTotalAmount>1200.00</ram:GrandTotalAmount>
         <ram:DuePayableAmount>1200.00</ram:DuePayableAmount>
+      </ram:SpecifiedTradeSettlementHeaderMonetarySummation>
+    </ram:ApplicableHeaderTradeSettlement>
+  </rsm:SupplyChainTradeTransaction>
+</rsm:CrossIndustryInvoice>`;
+
+// TVA par taux erronée : base 1000 × 20 % = 200, mais CalculatedAmount = 150.
+// Déclenche BR-CO-17 côté Schematron.
+export const CII_TVA_INCOHERENTE = `<?xml version="1.0" encoding="UTF-8"?>
+<rsm:CrossIndustryInvoice
+  xmlns:rsm="urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100"
+  xmlns:ram="urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100">
+  <rsm:SupplyChainTradeTransaction>
+    <ram:ApplicableHeaderTradeAgreement>
+      <ram:BuyerTradeParty><ram:SpecifiedLegalOrganization><ram:ID>987654329</ram:ID></ram:SpecifiedLegalOrganization></ram:BuyerTradeParty>
+    </ram:ApplicableHeaderTradeAgreement>
+    <ram:ApplicableHeaderTradeSettlement>
+      <ram:ApplicableTradeTax>
+        <ram:CalculatedAmount>150.00</ram:CalculatedAmount>
+        <ram:TypeCode>VAT</ram:TypeCode>
+        <ram:BasisAmount>1000.00</ram:BasisAmount>
+        <ram:CategoryCode>S</ram:CategoryCode>
+        <ram:RateApplicablePercent>20.00</ram:RateApplicablePercent>
+      </ram:ApplicableTradeTax>
+      <ram:SpecifiedTradeSettlementHeaderMonetarySummation>
+        <ram:TaxBasisTotalAmount>1000.00</ram:TaxBasisTotalAmount>
+        <ram:TaxTotalAmount>150.00</ram:TaxTotalAmount>
+        <ram:GrandTotalAmount>1150.00</ram:GrandTotalAmount>
       </ram:SpecifiedTradeSettlementHeaderMonetarySummation>
     </ram:ApplicableHeaderTradeSettlement>
   </rsm:SupplyChainTradeTransaction>
@@ -106,7 +141,14 @@ export const UBL_VALIDE = `<?xml version="1.0" encoding="UTF-8"?>
     <cac:PartyLegalEntity><cbc:CompanyID>987654329</cbc:CompanyID></cac:PartyLegalEntity>
   </cac:Party></cac:AccountingCustomerParty>
   <cac:Delivery><cac:DeliveryLocation><cac:Address><cbc:CityName>Lyon</cbc:CityName></cac:Address></cac:DeliveryLocation></cac:Delivery>
-  <cac:TaxTotal><cbc:TaxAmount currencyID="EUR">200.00</cbc:TaxAmount></cac:TaxTotal>
+  <cac:TaxTotal>
+    <cbc:TaxAmount currencyID="EUR">200.00</cbc:TaxAmount>
+    <cac:TaxSubtotal>
+      <cbc:TaxableAmount currencyID="EUR">1000.00</cbc:TaxableAmount>
+      <cbc:TaxAmount currencyID="EUR">200.00</cbc:TaxAmount>
+      <cac:TaxCategory><cbc:ID>S</cbc:ID><cbc:Percent>20.00</cbc:Percent></cac:TaxCategory>
+    </cac:TaxSubtotal>
+  </cac:TaxTotal>
   <cac:LegalMonetaryTotal>
     <cbc:TaxExclusiveAmount currencyID="EUR">1000.00</cbc:TaxExclusiveAmount>
     <cbc:TaxInclusiveAmount currencyID="EUR">1200.00</cbc:TaxInclusiveAmount>

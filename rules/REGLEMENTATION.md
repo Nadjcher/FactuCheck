@@ -49,13 +49,18 @@
 - **BR-CO-10** : total des lignes = somme des montants nets de chaque ligne. ✅ (CII/UBL)
 - **BR-CO-13** : Total HT = lignes − remises + frais. ✅ (CII)
 - **BR-CO-15** : TTC = HT + TVA. ✅ (CII/UBL)
+- **BR-CO-17** : TVA par taux = base × taux, arrondie à 2 décimales. ✅ (CII/UBL)
+- **BR-CO-03** : date (BT-7) et code (BT-8) d'exigibilité TVA mutuellement exclusifs. ✅ (CII)
 - **BR-FR-CTC-01** : SIREN du client obligatoire. ✅ (CII/UBL)
 
+### Moteur métier — déjà en place
+- **BT-8** : code d'exigibilité de la TVA (option « sur les débits ») extrait et
+  contrôlé (règle MEN-007). ✅ (CII/UBL)
+
 ### Backlog restant
-- **TVA par taux** = base × taux, arrondie à 2 décimales ; EXTENDED-CTC-FR tolère
-  1 centime d'écart **par ligne**.
-- **Option TVA sur les débits** (BT-8) si applicable.
-- Contrôle fin des **nouvelles mentions** au niveau ligne/TVA.
+- Tolérance **1 centime par ligne** spécifique EXTENDED-CTC-FR (affiner par rapport
+  au cumul actuel).
+- Contrôle fin des **nouvelles mentions** au niveau ligne.
 - **Déposer les schematrons officiels** (EN 16931 / FNFE-MPE) dans `schematron/official/`.
 
 ## 4. Cycle de vie (XP Z12-012) — hors contrôle fichier, à modéliser

@@ -67,6 +67,17 @@
       "messageOk": "Une référence d'exonération est présente.",
       "commentCorriger": "Lorsqu'une opération est exonérée (TVA à 0), indiquez la référence à la disposition légale justifiant l'exonération.",
       "infobulle": "En cas d'exonération ou de franchise en base, la facture doit citer le texte applicable."
+    },
+    {
+      "id": "MEN-007",
+      "libelle": "Code d'exigibilité de la TVA — option « sur les débits » (BT-8)",
+      "categorie": "mentions",
+      "severite": "avertissement",
+      "source": "EN 16931 — BT-8 (Value added tax point date code). Option « TVA sur les débits ». Liste de codes à confirmer (UNTDID 2005/2475).",
+      "aVerifier": true,
+      "messageOk": "Le code d'exigibilité de la TVA (BT-8) est renseigné.",
+      "commentCorriger": "Lorsque l'option « TVA sur les débits » (ou un autre régime d'exigibilité) s'applique, renseignez le code d'exigibilité de la TVA (BT-8).",
+      "infobulle": "BT-8 : indique le moment où la TVA devient exigible (ex. « sur les débits »)."
     }
   ]
 }

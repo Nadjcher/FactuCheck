@@ -32,4 +32,14 @@
         test="ram:BuyerTradeParty/ram:SpecifiedLegalOrganization/ram:ID">[BR-FR-CTC-01] Le SIREN de l'acheteur (BuyerTradeParty/SpecifiedLegalOrganization/ID) est obligatoire.</assert>
     </rule>
   </pattern>
+
+  <!-- TVA par taux (répartition BG-23) et exigibilité de la TVA (BT-7/BT-8). -->
+  <pattern id="tva">
+    <rule context="/rsm:CrossIndustryInvoice/rsm:SupplyChainTradeTransaction/ram:ApplicableHeaderTradeSettlement/ram:ApplicableTradeTax">
+      <assert id="BR-CO-17" flag="fatal"
+        test="not(ram:BasisAmount and ram:RateApplicablePercent and ram:CalculatedAmount) or abs(number(ram:CalculatedAmount) - (round(number(ram:BasisAmount) * number(ram:RateApplicablePercent) div 100 * 100) div 100)) &lt;= 0.01">[BR-CO-17] Le montant de TVA d'une catégorie doit être égal à la base (BT-116) multipliée par le taux (BT-119), arrondi à 2 décimales.</assert>
+      <assert id="BR-CO-03" flag="fatal"
+        test="not(ram:TaxPointDate and ram:DueDateTypeCode)">[BR-CO-03] La date d'exigibilité de la TVA (BT-7) et le code d'exigibilité (BT-8) sont mutuellement exclusifs.</assert>
+    </rule>
+  </pattern>
 </schema>

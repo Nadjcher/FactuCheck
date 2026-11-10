@@ -78,6 +78,8 @@ export interface ParsedInvoice {
   montantHT: number | null;
   montantTVA: number | null;
   montantTTC: number | null;
+  /** BT-8 : code d'exigibilité de la TVA (option « TVA sur les débits »). */
+  vatPointDateCode: string | null;
   pdf: PdfMeta;
   /** XML brut utilisé (pour la validation Schematron) ; null si indisponible. */
   xmlSource: string | null;

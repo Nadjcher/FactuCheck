@@ -27,4 +27,12 @@
         test="cac:PartyLegalEntity/cbc:CompanyID">[BR-FR-CTC-01] Le SIREN du client (PartyLegalEntity/CompanyID) est obligatoire.</assert>
     </rule>
   </pattern>
+
+  <!-- TVA par taux (répartition BG-23 : cac:TaxTotal/cac:TaxSubtotal). -->
+  <pattern id="tva">
+    <rule context="/ubl:Invoice/cac:TaxTotal/cac:TaxSubtotal">
+      <assert id="BR-CO-17" flag="fatal"
+        test="not(cbc:TaxableAmount and cac:TaxCategory/cbc:Percent and cbc:TaxAmount) or abs(number(cbc:TaxAmount) - (round(number(cbc:TaxableAmount) * number(cac:TaxCategory/cbc:Percent) div 100 * 100) div 100)) &lt;= 0.01">[BR-CO-17] Le montant de TVA d'une catégorie doit être égal à la base (BT-116) multipliée par le taux (BT-119), arrondi à 2 décimales.</assert>
+    </rule>
+  </pattern>
 </schema>

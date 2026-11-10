@@ -119,6 +119,13 @@ export const checks: Record<string, CheckFn> = {
   "MEN-005": (inv) =>
     inv.natureOperation ? ok() : ko("Catégorie de l'opération non renseignée."),
 
+  // BT-8 : code d'exigibilité de la TVA (option « sur les débits »). Optionnel :
+  // non applicable s'il est absent, sinon on confirme sa présence.
+  "MEN-007": (inv) =>
+    inv.vatPointDateCode
+      ? ok(`Code d'exigibilité TVA (BT-8) : ${inv.vatPointDateCode}.`)
+      : na(),
+
   // Applicable seulement si l'opération semble exonérée (TVA = 0).
   "MEN-006": (inv) => {
     if (inv.montantTVA == null || inv.montantTVA > 0) return na();

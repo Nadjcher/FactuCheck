@@ -71,6 +71,11 @@ describe("évaluation — facture valide", () => {
     const f = report.findings.find((x) => x.ruleId === "FMT-003");
     expect(f?.statut).toBe("reussi");
   });
+
+  it("renseigne le code d'exigibilité TVA BT-8 (MEN-007)", () => {
+    const f = report.findings.find((x) => x.ruleId === "MEN-007");
+    expect(f?.statut).toBe("reussi");
+  });
 });
 
 describe("évaluation — facture invalide", () => {

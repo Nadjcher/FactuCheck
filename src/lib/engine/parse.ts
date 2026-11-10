@@ -30,6 +30,7 @@ function invoiceVide(
     montantHT: null,
     montantTVA: null,
     montantTTC: null,
+    vatPointDateCode: null,
     pdf,
     xmlSource,
     erreurParsing: erreur,
