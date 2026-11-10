@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { analyserFichierComplet } from "@/lib/engine";
+import { analyserFichierComplet, marquerUniciteLot } from "@/lib/engine";
+import type { Report } from "@/lib/engine";
 
 export const runtime = "nodejs";
 
@@ -27,7 +28,8 @@ export async function POST(req: Request) {
     );
   }
 
-  const resultats = [];
+  const resultats: { nom: string; report?: Report; erreur?: string }[] = [];
+  const lot: { numero: string | null; report: Report }[] = [];
   for (const f of fichiers) {
     if (f.size > TAILLE_MAX) {
       resultats.push({
@@ -38,8 +40,9 @@ export async function POST(req: Request) {
     }
     const bytes = Buffer.from(await f.arrayBuffer());
     try {
-      const { report } = await analyserFichierComplet({ nom: f.name, bytes });
+      const { parsed, report } = await analyserFichierComplet({ nom: f.name, bytes });
       resultats.push({ nom: f.name, report });
+      lot.push({ numero: parsed.numero, report });
     } catch (e) {
       resultats.push({
         nom: f.name,
@@ -47,6 +50,9 @@ export async function POST(req: Request) {
       });
     }
   }
+
+  // FC-M01 : unicité du numéro dans le lot (contrôle transversal).
+  marquerUniciteLot(lot);
 
   return NextResponse.json({ resultats });
 }

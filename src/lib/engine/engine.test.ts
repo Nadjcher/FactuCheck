@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { analyserFichier, parseInvoice, REGLES } from "./index";
+import { analyserFichier, marquerUniciteLot, parseInvoice, REGLES } from "./index";
 import {
   CII_VALIDE,
   CII_INVALIDE,
@@ -122,6 +122,30 @@ describe("évaluation — facture invalide", () => {
   it("bloque sur le profil BASIC refusé par les plateformes (FMT-003)", () => {
     const f = report.findings.find((x) => x.ruleId === "FMT-003");
     expect(f?.statut).toBe("bloquant");
+  });
+});
+
+describe("unicité du numéro dans un lot (FC-M01)", () => {
+  it("bloque les factures ayant le même numéro dans le lot", () => {
+    const a = analyse("a.xml", CII_VALIDE).report;
+    const b = analyse("b.xml", CII_VALIDE).report; // même numéro FA-2026-0001
+    expect(a.conforme).toBe(true);
+    marquerUniciteLot([
+      { numero: "FA-2026-0001", report: a },
+      { numero: "FA-2026-0001", report: b },
+    ]);
+    const fa = a.findings.find((x) => x.ruleId === "NUM-003");
+    expect(fa?.statut).toBe("bloquant");
+    expect(fa?.specId).toBe("FC-M01");
+    expect(a.conforme).toBe(false);
+    expect(b.findings.some((x) => x.ruleId === "NUM-003")).toBe(true);
+  });
+
+  it("n'affecte pas un lot sans doublon", () => {
+    const a = analyse("a.xml", CII_VALIDE).report;
+    marquerUniciteLot([{ numero: "FA-2026-0001", report: a }]);
+    expect(a.findings.some((x) => x.ruleId === "NUM-003")).toBe(false);
+    expect(a.conforme).toBe(true);
   });
 });
 

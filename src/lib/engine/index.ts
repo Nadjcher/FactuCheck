@@ -1,6 +1,6 @@
 // API publique du moteur.
 export * from "./types";
-export { analyserFichier, analyserFichierComplet, evaluer } from "./run";
+export { analyserFichier, analyserFichierComplet, evaluer, marquerUniciteLot } from "./run";
 export { validerSchematron } from "./schematron";
 export { parseInvoice } from "./parse";
 export type { EntreeFichier } from "./parse";

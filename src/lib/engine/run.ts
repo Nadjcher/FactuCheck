@@ -91,6 +91,42 @@ export function evaluer(inv: ParsedInvoice): Report {
   };
 }
 
+/**
+ * Contrôle d'unicité du numéro dans un lot (FC-M01) : marque en bloquant toute
+ * facture dont le numéro apparaît sur plusieurs factures du même lot.
+ * Mute les rapports passés en argument.
+ */
+export function marquerUniciteLot(
+  items: { numero: string | null; report: Report }[],
+): void {
+  const comptes = new Map<string, number>();
+  for (const it of items) {
+    const n = it.numero?.trim();
+    if (n) comptes.set(n, (comptes.get(n) ?? 0) + 1);
+  }
+  for (const it of items) {
+    const n = it.numero?.trim();
+    if (!n || (comptes.get(n) ?? 0) <= 1) continue;
+    it.report.findings.push({
+      ruleId: "NUM-003",
+      libelle: "Numéro de facture unique dans le lot",
+      categorie: "numerotation",
+      statut: "bloquant",
+      message: `Le numéro « ${n} » apparaît sur plusieurs factures du lot.`,
+      commentCorriger:
+        "Chaque facture doit porter un numéro unique. Corrigez les doublons avant transmission.",
+      infobulle: "La numérotation doit être unique, continue et sans trou.",
+      source: "CGI art. 242 nonies A — numéro unique.",
+      aVerifier: true,
+      specId: "FC-M01",
+      origine: "moteur",
+    });
+    it.report.counts.bloquant += 1;
+    it.report.conforme = false;
+    it.report.score = Math.max(0, it.report.score - 12);
+  }
+}
+
 /** Pipeline synchrone (moteur métier uniquement). */
 export function analyserFichier(fichier: EntreeFichier): {
   parsed: ParsedInvoice;
