@@ -52,6 +52,14 @@ function dateValideEtPassee(s: string | null): boolean {
 const montantsPresents = (inv: ParsedInvoice) =>
   inv.montantHT != null && inv.montantTVA != null && inv.montantTTC != null;
 
+/** Compare deux libellés de profil (tolérant à la casse / ponctuation). */
+function profilsEgaux(a: string, b: string): boolean {
+  const n = (s: string) => s.toUpperCase().replace(/[^A-Z0-9]/g, "");
+  const x = n(a);
+  const y = n(b);
+  return x === y || x.startsWith(y) || y.startsWith(x);
+}
+
 export const checks: Record<string, CheckFn> = {
   // --- Format -------------------------------------------------------------
   "FMT-001": (inv) =>
@@ -85,13 +93,24 @@ export const checks: Record<string, CheckFn> = {
       : ko("Version Factur-X non déclarée dans les métadonnées XMP.");
   },
 
-  // --- PDF / conteneur Factur-X ------------------------------------------
-  "PDF-001": (inv) =>
-    !inv.pdf.estPdf
+  // Structure conforme à la syntaxe (éléments obligatoires présents).
+  // Complément du contrôle « bien formé » (FMT-001) ; la validation XSD complète
+  // reste à brancher (schémas officiels + validateur).
+  "FMT-005": (inv) =>
+    inv.format === "INCONNU"
       ? na()
-      : inv.pdf.estPdfA3
+      : inv.structureValide
         ? ok()
-        : ko("Le PDF ne se déclare pas conforme PDF/A-3."),
+        : ko("Des éléments structurels obligatoires de la syntaxe sont manquants."),
+
+  // --- PDF / conteneur Factur-X ------------------------------------------
+  "PDF-001": (inv) => {
+    if (!inv.pdf.estPdf) return na();
+    if (!inv.pdf.estPdfA3) return ko("Le PDF ne se déclare pas conforme PDF/A-3.");
+    return inv.pdf.pdfaConformance
+      ? ok(`PDF/A-3${inv.pdf.pdfaConformance} déclaré.`)
+      : ok("PDF/A-3 déclaré (niveau de conformité non précisé).");
+  },
 
   "PDF-002": (inv) =>
     !inv.pdf.estPdf
@@ -108,8 +127,16 @@ export const checks: Record<string, CheckFn> = {
       : ko(`Fichier embarqué nommé « ${inv.pdf.nomXmlEmbarque ?? "inconnu"} ».`);
   },
 
-  "PDF-004": (inv) =>
-    !inv.pdf.estPdf ? na() : inv.pdf.aXmp ? ok() : ko("Aucune métadonnée XMP détectée."),
+  "PDF-004": (inv) => {
+    if (!inv.pdf.estPdf) return na();
+    if (!inv.pdf.aXmp) return ko("Aucune métadonnée XMP détectée.");
+    const xmp = inv.pdf.conformanceLevelXmp;
+    const xml = inv.profilFacturx;
+    if (!xmp || !xml) return ok("Métadonnées XMP présentes.");
+    return profilsEgaux(xmp, xml)
+      ? ok(`Le XMP et le XML déclarent le même profil (${xml}).`)
+      : ko(`Le profil déclaré dans le XMP (${xmp}) diffère de celui du XML (${xml}).`);
+  },
 
   // --- Mentions obligatoires ---------------------------------------------
   "MEN-001": (inv) =>

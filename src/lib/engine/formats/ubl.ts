@@ -81,5 +81,10 @@ export function parseUBL(
     // BT-8 : code d'exigibilité de la TVA (InvoicePeriod/DescriptionCode).
     vatPointDateCode: textAt(inv, "InvoicePeriod.DescriptionCode"),
     lignes: parseLignes(inv),
+    structureValide:
+      textAt(inv, "ID") != null &&
+      supplier != null &&
+      customer != null &&
+      totals != null,
   };
 }

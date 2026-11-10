@@ -47,5 +47,10 @@
     "fichier": "KO_FC-C01_net-ligne.xml",
     "ruleId": "MNT-005",
     "specId": "FC-C01"
+  },
+  {
+    "fichier": "KO_FC-S06_structure.xml",
+    "ruleId": "FMT-005",
+    "specId": "FC-S06"
   }
 ]

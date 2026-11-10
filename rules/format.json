@@ -48,6 +48,18 @@
       "messageOk": "La version Factur-X est déclarée.",
       "commentCorriger": "Générez la facture avec la version Factur-X en vigueur (1.09 depuis le 1er juillet 2026). La version est portée par les métadonnées XMP.",
       "infobulle": "La version de la spécification Factur-X utilisée pour produire le fichier."
+    },
+    {
+      "id": "FMT-005",
+      "specId": "FC-S06",
+      "libelle": "Structure XML conforme à la syntaxe",
+      "categorie": "format",
+      "severite": "bloquant",
+      "source": "Schémas XSD CII / UBL (bien formé + éléments obligatoires). La validation XSD complète nécessite les schémas officiels.",
+      "aVerifier": true,
+      "messageOk": "Le XML est bien formé et porte les éléments structurels obligatoires.",
+      "commentCorriger": "Vérifiez que le XML est valide au schéma XSD de sa syntaxe (balises fermées, éléments obligatoires présents, types corrects).",
+      "infobulle": "Contrôle « bien formé » + présence des conteneurs obligatoires ; la validation XSD complète est un complément à brancher."
     }
   ]
 }

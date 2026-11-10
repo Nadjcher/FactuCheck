@@ -60,6 +60,10 @@ export interface PdfMeta {
   aXmp: boolean;
   /** Version Factur-X déclarée dans les métadonnées XMP (ex. « 1.0 »). */
   versionFacturx: string | null;
+  /** Lettre de conformité PDF/A déclarée (A, B ou U), ou null. */
+  pdfaConformance: string | null;
+  /** Niveau de conformité Factur-X déclaré dans le XMP (fx:ConformanceLevel). */
+  conformanceLevelXmp: string | null;
 }
 
 /** Partie (émetteur ou client). */
@@ -108,6 +112,8 @@ export interface ParsedInvoice {
   vatPointDateCode: string | null;
   /** Lignes de facture extraites. */
   lignes: LigneFacture[];
+  /** Les éléments structurels obligatoires de la syntaxe sont présents. */
+  structureValide: boolean;
   pdf: PdfMeta;
   /** XML brut utilisé (pour la validation Schematron) ; null si indisponible. */
   xmlSource: string | null;

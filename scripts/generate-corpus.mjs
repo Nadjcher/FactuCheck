@@ -136,6 +136,11 @@ const CAS = [
     xml: muter(BASE, "<ram:LineTotalAmount>1000.00</ram:LineTotalAmount></ram:SpecifiedTradeSettlementLineMonetarySummation>", "<ram:LineTotalAmount>900.00</ram:LineTotalAmount></ram:SpecifiedTradeSettlementLineMonetarySummation>"),
     attendu: { ruleId: "MNT-005", specId: "FC-C01" },
   },
+  {
+    nom: "KO_FC-S06_structure.xml",
+    xml: BASE.replace(/\s*<ram:BuyerTradeParty>[\s\S]*?<\/ram:BuyerTradeParty>/, ""),
+    attendu: { ruleId: "FMT-005", specId: "FC-S06" },
+  },
 ];
 
 fs.rmSync(OUT, { recursive: true, force: true });

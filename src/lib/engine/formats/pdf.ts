@@ -44,6 +44,18 @@ export function extractFromPdf(buf: Buffer): {
     latin1.match(/<(?:fx|zf|rsm):Version>\s*([^<\s]+)\s*<\/(?:fx|zf|rsm):Version>/i) ||
     latin1.match(/fx:Version\s*=\s*"([^"]+)"/i);
   const versionFacturx = versionMatch ? versionMatch[1] : null;
+
+  // Lettre de conformité PDF/A (A, B ou U).
+  const confMatch =
+    latin1.match(/<pdfaid:conformance>\s*([ABU])\s*<\/pdfaid:conformance>/i) ||
+    latin1.match(/pdfaid:conformance\s*=\s*"([ABU])"/i);
+  const pdfaConformance = confMatch ? confMatch[1].toUpperCase() : null;
+
+  // Niveau de conformité Factur-X déclaré dans le XMP.
+  const levelMatch =
+    latin1.match(/<(?:fx|zf|rsm):ConformanceLevel>\s*([^<]+?)\s*<\/(?:fx|zf|rsm):ConformanceLevel>/i) ||
+    latin1.match(/fx:ConformanceLevel\s*=\s*"([^"]+)"/i);
+  const conformanceLevelXmp = levelMatch ? levelMatch[1].trim() : null;
   const estPdfA3 =
     /<pdfaid:part>\s*3\s*<\/pdfaid:part>/.test(latin1) ||
     /pdfaid:part\s*=\s*["']?3/.test(latin1);
@@ -85,7 +97,16 @@ export function extractFromPdf(buf: Buffer): {
   const aXmlEmbarque = xml != null || nomXmlEmbarque != null;
 
   return {
-    pdf: { estPdf, estPdfA3, aXmlEmbarque, nomXmlEmbarque, aXmp, versionFacturx },
+    pdf: {
+      estPdf,
+      estPdfA3,
+      aXmlEmbarque,
+      nomXmlEmbarque,
+      aXmp,
+      versionFacturx,
+      pdfaConformance,
+      conformanceLevelXmp,
+    },
     xml,
   };
 }

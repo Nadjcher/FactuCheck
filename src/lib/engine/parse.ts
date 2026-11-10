@@ -12,6 +12,8 @@ const PDF_META_VIDE: PdfMeta = {
   nomXmlEmbarque: null,
   aXmp: false,
   versionFacturx: null,
+  pdfaConformance: null,
+  conformanceLevelXmp: null,
 };
 
 function invoiceVide(
@@ -38,6 +40,7 @@ function invoiceVide(
     conditionsPaiement: false,
     vatPointDateCode: null,
     lignes: [],
+    structureValide: false,
     pdf,
     xmlSource,
     erreurParsing: erreur,

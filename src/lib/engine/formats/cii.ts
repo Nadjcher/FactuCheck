@@ -121,5 +121,12 @@ export function parseCII(
     // BT-8 : code d'exigibilité de la TVA (ApplicableTradeTax/DueDateTypeCode).
     vatPointDateCode: textAt(settlement, "ApplicableTradeTax.DueDateTypeCode"),
     lignes: parseLignes(tx),
+    structureValide:
+      doc != null &&
+      tx != null &&
+      agreement != null &&
+      settlement != null &&
+      get(agreement, "SellerTradeParty") != null &&
+      get(agreement, "BuyerTradeParty") != null,
   };
 }
