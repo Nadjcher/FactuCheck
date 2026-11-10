@@ -155,11 +155,16 @@ Factur-X \`fixtures-corpus-pdf/*.pdf\` (générées par \`scripts/make-facturx-p
 Les schematrons officiels CII **et UBL** (EN 16931 + FNFE-MPE) sont rejoués dans le
 test différentiel Saxon avec **0 écart** (30 comparaisons).
 
-**PDF/A-3.** Les fixtures Factur-X sont prouvées **PDF/A-3B valides** par veraPDF
-(implémentation de référence ISO 19005 ; test \`verapdf.pdfa.test.ts\`, 0 échec). En
-production, la validation PDF/A-3 **par-upload** est déléguée à un service veraPDF ;
-tant qu'il n'est pas branché en ligne, FC-S02/FC-S06 restent \`exhaustif:false\`
-(« Contrôle partiel »). Voir docs/validation-pdfa3.md.
+**Axes structurels (branchés).** Les deux seuls contrôles \`exhaustif:false\` sont
+désormais adossés à des services officiels :
+- **FC-S02 (PDF/A-3)** → service **veraPDF** (ISO 19005) — docs/validation-pdfa3.md ;
+- **FC-S06 (XSD)** → service **xmllint** sur schémas UN/CEFACT CII + OASIS UBL —
+  docs/validation-xsd.md.
+
+Quand les deux services sont branchés (\`VERAPDF_SERVICE_URL\`, \`XSD_SERVICE_URL\`), un
+Factur-X conforme devient **pleinement exhaustif** (plus de « Contrôle partiel ») —
+prouvé par \`validation-closure.test.ts\`. Sans service, dégradation gracieuse
+(contrôle de marqueurs / best-effort, « Contrôle partiel »).
 
 ## Par profil
 

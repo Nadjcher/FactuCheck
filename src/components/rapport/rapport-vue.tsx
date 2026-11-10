@@ -169,6 +169,40 @@ export function RapportVue({ nom, report }: { nom: string; report: Report }) {
         </section>
       )}
 
+      {/* Validation XSD (structure, schémas officiels CII/UBL) */}
+      {report.xsd && (
+        <section className="print-break-avoid">
+          <SectionTitre>Validation structurelle (XSD)</SectionTitre>
+          {!report.xsd.execute ? (
+            <p className="rounded-lg border border-border bg-muted/40 p-3 text-sm text-muted-foreground">
+              Validation XSD complète non exécutée ({report.xsd.note}). La structure n'est
+              contrôlée qu'en best-effort&nbsp;: résultat « Contrôle partiel ».
+            </p>
+          ) : report.xsd.valide ? (
+            <div className="flex items-center gap-2 rounded-lg border border-success/30 bg-success-soft p-3 text-sm text-success">
+              <ShieldCheck className="h-4 w-4 shrink-0" aria-hidden="true" />
+              Structure conforme au schéma XSD officiel ({report.xsd.format}).
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <p className="text-sm text-danger">
+                Structure non conforme au schéma XSD officiel ({report.xsd.format})&nbsp;:
+                {" "}
+                {report.xsd.erreurs.length} erreur(s).
+              </p>
+              {report.xsd.erreurs.map((e, i) => (
+                <Card key={`xsd-${i}`} className="print-break-avoid">
+                  <CardContent className="p-4">
+                    <p className="font-mono text-xs text-muted-foreground">ligne {e.ligne}</p>
+                    <p className="mt-1 text-sm">{e.message}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
+
       {/* Contrôles par catégorie */}
       {ORDRE.map((cat) => {
         const items = report.findings.filter((f) => f.categorie === cat);

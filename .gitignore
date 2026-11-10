@@ -31,6 +31,9 @@ next-env.d.ts
 # validateur PDF/A de référence (veraPDF, téléchargé)
 /.verapdf/
 
+# schémas XSD officiels du microservice (licences tierces UN/CEFACT / OASIS)
+/services/xsd/schemas/
+
 # misc
 .DS_Store
 *.pem

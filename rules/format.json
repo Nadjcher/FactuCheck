@@ -56,8 +56,8 @@
       "categorie": "format",
       "severite": "bloquant",
       "exhaustif": false,
-      "source": "Schémas XSD CII / UBL (bien formé + éléments obligatoires). La validation XSD complète nécessite les schémas officiels.",
-      "aVerifier": true,
+      "source": "Structure définie par les schémas XSD officiels : UN/CEFACT CrossIndustryInvoice (profil Factur-X EN 16931) et OASIS UBL 2.1. Le moteur contrôle en interne le bien-formé et les éléments obligatoires (best-effort) ; la validation XSD complète est déléguée au service xmllint (services/xsd/), d'où exhaustif:false.",
+      "aVerifier": false,
       "messageOk": "Le XML est bien formé et porte les éléments structurels obligatoires.",
       "commentCorriger": "Vérifiez que le XML est valide au schéma XSD de sa syntaxe (balises fermées, éléments obligatoires présents, types corrects).",
       "infobulle": "Contrôle « bien formé » + présence des conteneurs obligatoires ; la validation XSD complète est un complément à brancher."

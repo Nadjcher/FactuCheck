@@ -13,8 +13,8 @@ Réponse à la consigne QA n°5. La transparence prime : les cases vides sont de
 |---|---|
 | Règles au catalogue | 28 |
 | Source **renseignée** (texte présent) | 28 / 28 |
-| Source **formellement vérifiée** (`aVerifier:false`) | 17 / 28 (11 encore « À VÉRIFIER ») |
-| Règles avec cas **OK** testé (passe sur facture conforme) | 11 / 28 |
+| Source **formellement vérifiée** (`aVerifier:false`) | 18 / 28 (10 encore « À VÉRIFIER ») |
+| Règles avec cas **OK** testé (passe sur facture conforme) | 12 / 28 |
 | Règles avec cas **KO** testé (corpus ou unitaire) | 12 / 28 |
 | — dont corpus versionné (`fixtures-corpus/`) | 11 |
 
@@ -50,7 +50,7 @@ marqué « à vérifier » ; on ne bascule qu'après confirmation, jamais par co
 | FC-S03 | `PDF-003` | bloquant | oui | ✓ vérifiée | ✓ | ✓ |
 | FC-S04 | `PDF-004` | avertissement | oui | ✓ vérifiée | — | — |
 | FC-S05 | `FMT-003` | bloquant | oui | ○ à confirmer | ✓ | ✓ |
-| FC-S06 | `FMT-005` | bloquant | non | ○ à confirmer | — | ✓ |
+| FC-S06 | `FMT-005` | bloquant | non | ✓ vérifiée | ✓ | ✓ |
 | FC-S07 | `FMT-004` | avertissement | oui | ✓ vérifiée | — | — |
 | — | `FMT-002` | avertissement | oui | ✓ vérifiée | — | — |
 | — | `MNT-002` | bloquant | oui | ✓ vérifiée | — | — |
@@ -77,11 +77,16 @@ Factur-X `fixtures-corpus-pdf/*.pdf` (générées par `scripts/make-facturx-pdf.
 Les schematrons officiels CII **et UBL** (EN 16931 + FNFE-MPE) sont rejoués dans le
 test différentiel Saxon avec **0 écart** (30 comparaisons).
 
-**PDF/A-3.** Les fixtures Factur-X sont prouvées **PDF/A-3B valides** par veraPDF
-(implémentation de référence ISO 19005 ; test `verapdf.pdfa.test.ts`, 0 échec). En
-production, la validation PDF/A-3 **par-upload** est déléguée à un service veraPDF ;
-tant qu'il n'est pas branché en ligne, FC-S02/FC-S06 restent `exhaustif:false`
-(« Contrôle partiel »). Voir docs/validation-pdfa3.md.
+**Axes structurels (branchés).** Les deux seuls contrôles `exhaustif:false` sont
+désormais adossés à des services officiels :
+- **FC-S02 (PDF/A-3)** → service **veraPDF** (ISO 19005) — docs/validation-pdfa3.md ;
+- **FC-S06 (XSD)** → service **xmllint** sur schémas UN/CEFACT CII + OASIS UBL —
+  docs/validation-xsd.md.
+
+Quand les deux services sont branchés (`VERAPDF_SERVICE_URL`, `XSD_SERVICE_URL`), un
+Factur-X conforme devient **pleinement exhaustif** (plus de « Contrôle partiel ») —
+prouvé par `validation-closure.test.ts`. Sans service, dégradation gracieuse
+(contrôle de marqueurs / best-effort, « Contrôle partiel »).
 
 ## Par profil
 
@@ -98,7 +103,7 @@ tant qu'il n'est pas branché en ligne, FC-S02/FC-S06 restent `exhaustif:false`
 - **FC-M09** reste « À VÉRIFIER » : passage exact de la norme XP Z12-012 non cité.
 - **FC-S05 (FMT-003)** reste « À VÉRIFIER » : règle d'acceptation plateforme
   (spec DGFiP/PDP externe), pas de passage officiel citable à ce stade.
-- 11 règles sur 28 restent `aVerifier:true` : la plupart ont une
+- 10 règles sur 28 restent `aVerifier:true` : la plupart ont une
   source renseignée (CGI, EN 16931) mais pas encore formellement confirmée. À
   basculer au fur et à mesure, uniquement sur source autoritative.
 

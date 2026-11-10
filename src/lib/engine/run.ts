@@ -12,18 +12,14 @@ import { REGLES } from "./rules-loader";
 import { parseInvoice, type EntreeFichier } from "./parse";
 import { validerSchematron } from "./schematron";
 import { validerPdfA3 } from "./verapdf-service";
-import type { PdfA3Resultat } from "./types";
+import { validerXsd } from "./xsd-service";
+import type { PdfA3Resultat, XsdResultat } from "./types";
 
 const POIDS: Record<Severite, number> = { bloquant: 3, avertissement: 1 };
 
-/** Règle couverte par une validation externe exhaustive (ne force plus « partiel »). */
-function couvertParValidateur(ruleId: string, pdfA3Execute: boolean): boolean {
-  // PDF-001 (FC-S02, PDF/A-3) est pleinement validé dès que veraPDF a tourné.
-  return ruleId === "PDF-001" && pdfA3Execute;
-}
-
-/** Recalcule counts, score (pondéré), conformité et exhaustivité depuis les findings « moteur ». */
-function recalculer(report: Report, pdfA3Execute: boolean): void {
+/** Recalcule counts, score (pondéré), conformité et exhaustivité depuis les findings « moteur ».
+ *  `couverts` = règles `exhaustif:false` désormais validées par un service externe. */
+function recalculer(report: Report, couverts: Set<string>): void {
   const counts: ReportCounts = { reussi: 0, avertissement: 0, bloquant: 0, nonApplicable: 0 };
   let poidsTotal = 0;
   let poidsReussi = 0;
@@ -41,9 +37,7 @@ function recalculer(report: Report, pdfA3Execute: boolean): void {
     if (applicable) {
       poidsTotal += POIDS[regle.severite];
       if (f.statut === "reussi") poidsReussi += POIDS[regle.severite];
-      if (regle.exhaustif === false && !couvertParValidateur(regle.id, pdfA3Execute)) {
-        exhaustif = false;
-      }
+      if (regle.exhaustif === false && !couverts.has(regle.id)) exhaustif = false;
     }
   }
   report.counts = counts;
@@ -52,10 +46,10 @@ function recalculer(report: Report, pdfA3Execute: boolean): void {
   report.exhaustif = exhaustif;
 }
 
-/** Intègre le verdict PDF/A-3 (veraPDF) : surcharge PDF-001 et recalcule le rapport. */
-function appliquerPdfA3(report: Report, pdfA3: PdfA3Resultat): void {
+/** Intègre le verdict PDF/A-3 (veraPDF) : surcharge PDF-001. Renvoie les règles couvertes. */
+function appliquerPdfA3(report: Report, pdfA3: PdfA3Resultat): string[] {
   report.pdfA3 = pdfA3;
-  if (!pdfA3.execute) return;
+  if (!pdfA3.execute) return [];
   const f = report.findings.find((x) => x.ruleId === "PDF-001");
   if (f && f.statut !== "non_applicable") {
     if (pdfA3.conforme) {
@@ -70,7 +64,28 @@ function appliquerPdfA3(report: Report, pdfA3: PdfA3Resultat): void {
     f.origine = "verapdf";
     f.source = `${f.source ?? ""}${f.source ? " " : ""}Validation ISO 19005-3 par veraPDF.`.trim();
   }
-  recalculer(report, true);
+  return ["PDF-001"];
+}
+
+/** Intègre le verdict XSD (xmllint) : surcharge FMT-005 (FC-S06). Renvoie les règles couvertes. */
+function appliquerXsd(report: Report, xsd: XsdResultat): string[] {
+  report.xsd = xsd;
+  if (!xsd.execute) return [];
+  const f = report.findings.find((x) => x.ruleId === "FMT-005");
+  if (f && f.statut !== "non_applicable") {
+    if (xsd.valide) {
+      f.statut = "reussi";
+      f.message = `Structure conforme au schéma XSD officiel (${xsd.format}, xmllint).`;
+      f.commentCorriger = null;
+    } else {
+      const detail = xsd.erreurs.slice(0, 3).map((e) => `ligne ${e.ligne} : ${e.message}`).join(" ; ");
+      f.statut = "bloquant";
+      f.message = `Structure non conforme au schéma XSD officiel (${xsd.erreurs.length} erreur(s))${detail ? ` — ${detail}` : ""}.`;
+    }
+    f.origine = "xsd";
+    f.source = `${f.source ?? ""}${f.source ? " " : ""}Validation XSD officielle par xmllint.`.trim();
+  }
+  return ["FMT-005"];
 }
 
 function statutDepuis(
@@ -209,14 +224,20 @@ export async function analyserFichierComplet(fichier: EntreeFichier): Promise<{
   const parsed = parseInvoice(fichier);
   const report = evaluer(parsed);
 
-  // Contrôles officiels (Schematron) et validation PDF/A-3 (veraPDF) en parallèle.
-  const [schematron, pdfA3] = await Promise.all([
+  // Contrôles officiels (Schematron), validation PDF/A-3 (veraPDF) et XSD (xmllint)
+  // en parallèle — chacun avec dégradation gracieuse.
+  const [schematron, pdfA3, xsd] = await Promise.all([
     validerSchematron(parsed.xmlSource, parsed.format),
     parsed.pdf.estPdf ? validerPdfA3(fichier.bytes) : Promise.resolve(null),
+    validerXsd(parsed.xmlSource, parsed.format),
   ]);
 
-  // 1) PDF/A-3 d'abord : surcharge PDF-001 et recalcule score/conformité/exhaustivité.
-  if (pdfA3) appliquerPdfA3(report, pdfA3);
+  // 1) Validateurs structurels : surchargent PDF-001 / FMT-005 et déclarent les
+  //    règles « exhaustif:false » désormais couvertes.
+  const couverts = new Set<string>();
+  if (pdfA3) for (const id of appliquerPdfA3(report, pdfA3)) couverts.add(id);
+  for (const id of appliquerXsd(report, xsd)) couverts.add(id);
+  recalculer(report, couverts);
 
   // 2) Schematron ensuite : pénalité de score et conformité par-dessus.
   report.schematron = schematron;

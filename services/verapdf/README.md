@@ -43,9 +43,13 @@ export VERAPDF_SERVICE_URL=http://localhost:8083
 ## Déployer (Docker)
 
 ```bash
-docker build -t factucheck-verapdf services/verapdf
+# build depuis la racine du repo
+docker build -f services/verapdf/Dockerfile -t factucheck-verapdf .
 docker run -p 8083:8083 factucheck-verapdf
 # puis, côté app : VERAPDF_SERVICE_URL=http://<hôte>:8083
+
+# ou les deux services d'un coup :
+docker compose -f services/docker-compose.yml up --build
 ```
 
 ## Comportement côté app

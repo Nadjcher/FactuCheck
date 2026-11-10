@@ -43,7 +43,8 @@ RUN set -eux; \
     rm -rf /tmp/verapdf.zip "$DIR" auto.xml
 
 WORKDIR /app
-COPY server.mjs .
+# Contexte de build = racine du repo (voir services/docker-compose.yml).
+COPY services/verapdf/server.mjs .
 
 EXPOSE 8083
 HEALTHCHECK --interval=30s --timeout=5s CMD curl -fsS http://localhost:8083/health || exit 1

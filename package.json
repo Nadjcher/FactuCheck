@@ -19,7 +19,9 @@
     "diff:setup": "node scripts/fetch-official-schematron.mjs && node scripts/diff-saxon.mjs",
     "diff:run": "SAXON_DIR=.saxon DIFF_CORPUS=fixtures-corpus vitest run differential.saxon",
     "verapdf:setup": "node scripts/verapdf-setup.mjs",
-    "verapdf:run": "VERAPDF_CLI=.verapdf/app/verapdf vitest run verapdf.pdfa"
+    "verapdf:run": "VERAPDF_CLI=.verapdf/app/verapdf vitest run verapdf.pdfa",
+    "xsd:setup": "node scripts/fetch-xsd.mjs",
+    "xsd:serve": "SCHEMAS_DIR=services/xsd/schemas node services/xsd/server.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",

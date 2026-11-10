@@ -1,0 +1,23 @@
+# Services de validation structurelle de FactuCheck.
+# À lancer depuis la RACINE du repo (les Dockerfile ont besoin de scripts/) :
+#   docker compose -f services/docker-compose.yml up --build
+#
+# Puis, côté app :
+#   VERAPDF_SERVICE_URL=http://localhost:8083
+#   XSD_SERVICE_URL=http://localhost:8084
+services:
+  verapdf:
+    build:
+      context: .
+      dockerfile: services/verapdf/Dockerfile
+    image: factucheck-verapdf
+    ports:
+      - "8083:8083"
+
+  xsd:
+    build:
+      context: .
+      dockerfile: services/xsd/Dockerfile
+    image: factucheck-xsd
+    ports:
+      - "8084:8084"

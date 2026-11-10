@@ -137,8 +137,8 @@ export interface CheckResult {
 /** Fonction de contrôle associée à une règle par son id. */
 export type CheckFn = (inv: ParsedInvoice) => CheckResult;
 
-/** Origine d'un résultat : moteur « métier », Schematron, ou validation PDF/A (veraPDF). */
-export type OrigineFinding = "moteur" | "schematron" | "verapdf";
+/** Origine d'un résultat : moteur « métier », Schematron, validation PDF/A (veraPDF) ou XSD. */
+export type OrigineFinding = "moteur" | "schematron" | "verapdf" | "xsd";
 
 /** Ligne de résultat pour une règle dans le rapport final. */
 export interface Finding {
@@ -183,6 +183,20 @@ export interface PdfA3Resultat {
   note: string | null;
 }
 
+/** Résultat de la validation XSD (structure/syntaxe) par le service xmllint. */
+export interface XsdResultat {
+  /** La validation a-t-elle pu s'exécuter (service configuré et joignable) ? */
+  execute: boolean;
+  moteur: "xmllint";
+  /** Format validé (CII / UBL). */
+  format: string;
+  /** Conforme au schéma XSD officiel ? `null` si non exécuté. */
+  valide: boolean | null;
+  /** Jusqu'à quelques erreurs de schéma (ligne + message). */
+  erreurs: Array<{ ligne: number; message: string }>;
+  note: string | null;
+}
+
 export interface ReportCounts {
   reussi: number;
   avertissement: number;
@@ -210,5 +224,7 @@ export interface Report {
   schematron?: SchematronResultat;
   /** Résultat de la validation PDF/A-3 (service veraPDF), si exécutée. */
   pdfA3?: PdfA3Resultat;
+  /** Résultat de la validation XSD (service xmllint), si exécutée. */
+  xsd?: XsdResultat;
   genereLe: string; // ISO
 }
