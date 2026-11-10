@@ -86,9 +86,11 @@ Le moteur Schematron est **intégré** (`node-schematron`, pur JS ; voir
   affiché dans une section dédiée du rapport, et intégré à la conformité globale.
 - Nos règles à forte valeur UX (FMT-003 profil accepté, explications, score) sont
   conservées par-dessus.
-- **Reste à faire** : déposer les schematrons **officiels** (EN 16931 / FNFE-MPE)
-  dans `schematron/official/` — ils deviennent alors prioritaires et « non à vérifier ».
-  Les `.sch` maison fournis couvrent déjà BR-CO-10/13/15 et le SIREN client.
+- **Officiel EN 16931** : `npm run schematron:official` télécharge, résout les
+  includes et développe les patterns abstraits des schematrons EN 16931 (CII + UBL)
+  → `schematron/official/` (prioritaires, « non à vérifier »). Vérifié : ils
+  s'exécutent et la facture d'exemple passe la validation officielle CII.
+- **Reste** : brancher de la même façon les schematrons **FNFE-MPE** (EXTENDED-CTC-FR).
 
 ## 7. Sources
 

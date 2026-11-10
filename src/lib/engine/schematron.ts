@@ -84,6 +84,7 @@ function extraireCode(message: string, assertId?: string): string {
 export async function validerSchematron(
   xml: string | null,
   format: FormatFacture,
+  opts?: { fichierSch?: string },
 ): Promise<SchematronResultat> {
   const vide = (note: string): SchematronResultat => ({
     execute: false,
@@ -95,7 +96,9 @@ export async function validerSchematron(
   });
 
   if (!xml) return vide("Aucun XML exploitable à valider.");
-  const sch = choisirSch(format);
+  const sch = opts?.fichierSch
+    ? { chemin: opts.fichierSch, officiel: /[/\\]official[/\\]/.test(opts.fichierSch) }
+    : choisirSch(format);
   if (!sch) return vide(`Aucun schematron disponible pour le format ${format}.`);
 
   let schXml: string;

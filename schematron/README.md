@@ -31,17 +31,33 @@ Des contrôles que le moteur « métier » ne faisait pas, notamment **au niveau
 Le `flag` de chaque assertion (`fatal` → bloquant, `warning` → avertissement) est
 lu depuis le `.sch`.
 
-## Brancher les artefacts officiels (recommandé avant production)
+## Brancher les artefacts officiels EN 16931 (automatisé)
 
-1. Récupérez les artefacts **préprocessés** (includes résolus) :
-   - **EN 16931 (CII & UBL)** — dépôt `ConnectingEurope/eInvoicing-EN16931`
-     (Apache-2.0). Utilisez les `.sch` préprocessés ou compilez-les depuis les
-     sources (`iso_dsdl_include` puis `iso_abstract_expand`).
-   - **Factur-X / FNFE-MPE** — schematrons spécifiques aux profils français
-     (EXTENDED-CTC-FR), selon la licence du FNFE-MPE.
-2. Déposez-les sous `schematron/official/cii.sch` et `schematron/official/ubl.sch`.
-3. Redémarrez l'application : ils sont pris en compte automatiquement et marqués
-   comme source **officielle** (plus « À VÉRIFIER »).
+Un script récupère les schematrons officiels EN 16931 (CII + UBL) depuis le dépôt
+`ConnectingEurope/eInvoicing-EN16931` (**EUPL 1.2**), **résout les `<include>` et
+développe les patterns abstraits** (`is-a`/`param`) pour produire des `.sch`
+autonomes exécutables, puis les dépose dans `schematron/official/` :
+
+```bash
+npm run schematron:official          # branche master
+npm run schematron:official -- v1.3.14.1   # une version précise (tag)
+```
+
+Redémarrez ensuite l'application : `schematron/official/cii.sch` et `ubl.sch`
+deviennent **prioritaires** et sont marqués source **officielle** (plus
+« À VÉRIFIER »).
+
+> Vérifié : les schematrons officiels EN 16931 CII et UBL s'exécutent de bout en
+> bout via `node-schematron` après ce préprocessing, et la facture d'exemple
+> fournie passe la validation officielle CII sans anomalie.
+
+Les scripts : `scripts/fetch-official-schematron.mjs` (téléchargement) et
+`scripts/preprocess-schematron.mjs` (includes + expansion abstraite, réutilisable
+pour d'autres schematrons, dont ceux du **FNFE-MPE** pour EXTENDED-CTC-FR).
+
+### Dépôt manuel (alternative)
+Vous pouvez aussi déposer vous-même des `.sch` déjà préprocessés sous
+`schematron/official/cii.sch` et `schematron/official/ubl.sch`.
 
 > **Compatibilité** : `node-schematron` s'appuie sur `fontoxpath` (XPath 3.1).
 > La grande majorité des assertions EN 16931 fonctionne, mais certaines
