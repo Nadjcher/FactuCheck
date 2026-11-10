@@ -1,5 +1,5 @@
 // Parser CII / Factur-X (UN/CEFACT CrossIndustryInvoice).
-import type { ParsedInvoice, Partie, ProfilFacturx } from "../types";
+import type { LigneFacture, ParsedInvoice, Partie, ProfilFacturx } from "../types";
 import { get, text, textAt, toNumber } from "../xml";
 
 function asArray(v: unknown): unknown[] {
@@ -32,6 +32,25 @@ function parseParty(party: unknown): Partie {
     siren: textAt(party, "SpecifiedLegalOrganization.ID"),
     numeroTVA: findVat(party),
   };
+}
+
+function parseLignes(tx: unknown): LigneFacture[] {
+  return asArray(get(tx, "IncludedSupplyChainTradeLineItem")).map((it) => {
+    const agr = get(it, "SpecifiedLineTradeAgreement");
+    const del = get(it, "SpecifiedLineTradeDelivery");
+    const set = get(it, "SpecifiedLineTradeSettlement");
+    return {
+      id: textAt(it, "AssociatedDocumentLineDocument.LineID"),
+      designation: textAt(it, "SpecifiedTradeProduct.Name"),
+      quantite: toNumber(textAt(del, "BilledQuantity")),
+      prixUnitaire: toNumber(textAt(agr, "NetPriceProductTradePrice.ChargeAmount")),
+      tauxTVA: toNumber(textAt(set, "ApplicableTradeTax.RateApplicablePercent")),
+      montantNet: toNumber(textAt(set, "SpecifiedTradeSettlementLineMonetarySummation.LineTotalAmount")),
+      aRemiseCharge:
+        get(set, "SpecifiedTradeAllowanceCharge") != null ||
+        get(agr, "GrossPriceProductTradePrice.AppliedTradeAllowanceCharge") != null,
+    };
+  });
 }
 
 function detectProfil(urn: string | null): ProfilFacturx {
@@ -101,5 +120,6 @@ export function parseCII(
       textAt(settlement, "SpecifiedTradePaymentTerms.Description") != null,
     // BT-8 : code d'exigibilité de la TVA (ApplicableTradeTax/DueDateTypeCode).
     vatPointDateCode: textAt(settlement, "ApplicableTradeTax.DueDateTypeCode"),
+    lignes: parseLignes(tx),
   };
 }

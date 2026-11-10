@@ -47,6 +47,18 @@
       "messageOk": "Le net à payer correspond au TTC diminué des acomptes.",
       "commentCorriger": "Vérifiez que le montant dû est égal au total TTC diminué des acomptes déjà versés.",
       "infobulle": "Net à payer : ce qui reste dû après déduction des acomptes."
+    },
+    {
+      "id": "MNT-005",
+      "specId": "FC-C01",
+      "libelle": "Montant net de ligne = quantité × prix unitaire",
+      "categorie": "montants",
+      "severite": "bloquant",
+      "source": "EN 16931 — montant net de ligne (BT-131) = quantité × prix unitaire net, hors remises/frais de ligne. Identifiant à confirmer.",
+      "aVerifier": true,
+      "messageOk": "Le montant net de chaque ligne correspond à quantité × prix unitaire.",
+      "commentCorriger": "Vérifiez le calcul de chaque ligne : montant net = quantité × prix unitaire net (hors remises et frais de ligne).",
+      "infobulle": "Contrôle vérifié uniquement sur les lignes sans remise ni frais au niveau ligne."
     }
   ]
 }

@@ -1,5 +1,5 @@
 // Parser UBL (OASIS Universal Business Language, Invoice-2).
-import type { ParsedInvoice, Partie } from "../types";
+import type { LigneFacture, ParsedInvoice, Partie } from "../types";
 import { get, text, textAt, toNumber } from "../xml";
 
 function asArray(v: unknown): unknown[] {
@@ -24,6 +24,22 @@ function parseParty(party: unknown): Partie {
     textAt(party, "PartyName.Name") ??
     textAt(party, "PartyLegalEntity.RegistrationName");
   return { nom, siren, numeroTVA };
+}
+
+function parseLignes(inv: unknown): LigneFacture[] {
+  const items = [
+    ...asArray(get(inv, "InvoiceLine")),
+    ...asArray(get(inv, "CreditNoteLine")),
+  ];
+  return items.map((li) => ({
+    id: textAt(li, "ID"),
+    designation: textAt(li, "Item.Name"),
+    quantite: toNumber(textAt(li, "InvoicedQuantity") ?? textAt(li, "CreditedQuantity")),
+    prixUnitaire: toNumber(textAt(li, "Price.PriceAmount")),
+    tauxTVA: toNumber(textAt(li, "Item.ClassifiedTaxCategory.Percent")),
+    montantNet: toNumber(textAt(li, "LineExtensionAmount")),
+    aRemiseCharge: get(li, "AllowanceCharge") != null,
+  }));
 }
 
 export function parseUBL(
@@ -64,5 +80,6 @@ export function parseUBL(
       textAt(inv, "PaymentMeans.PaymentDueDate") != null,
     // BT-8 : code d'exigibilité de la TVA (InvoicePeriod/DescriptionCode).
     vatPointDateCode: textAt(inv, "InvoicePeriod.DescriptionCode"),
+    lignes: parseLignes(inv),
   };
 }

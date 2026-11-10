@@ -69,6 +69,18 @@ export interface Partie {
   numeroTVA: string | null;
 }
 
+/** Ligne de facture. */
+export interface LigneFacture {
+  id: string | null;
+  designation: string | null;
+  quantite: number | null;
+  prixUnitaire: number | null;
+  tauxTVA: number | null;
+  montantNet: number | null;
+  /** Remise ou frais au niveau ligne (le net ≠ quantité × prix). */
+  aRemiseCharge: boolean;
+}
+
 /** Modèle normalisé de facture, produit par les parsers. */
 export interface ParsedInvoice {
   format: FormatFacture;
@@ -94,6 +106,8 @@ export interface ParsedInvoice {
   conditionsPaiement: boolean;
   /** BT-8 : code d'exigibilité de la TVA (option « TVA sur les débits »). */
   vatPointDateCode: string | null;
+  /** Lignes de facture extraites. */
+  lignes: LigneFacture[];
   pdf: PdfMeta;
   /** XML brut utilisé (pour la validation Schematron) ; null si indisponible. */
   xmlSource: string | null;

@@ -184,6 +184,29 @@ export const checks: Record<string, CheckFn> = {
     return vals.every((v) => v >= 0) ? ok() : ko("Au moins un montant est négatif.");
   },
 
+  "MEN-010": (inv) => {
+    if (inv.lignes.length === 0) return na();
+    const incompletes = inv.lignes.filter(
+      (l) => !l.designation || l.quantite == null || l.prixUnitaire == null || l.tauxTVA == null,
+    );
+    return incompletes.length === 0
+      ? ok(`${inv.lignes.length} ligne(s) complète(s).`)
+      : ko(`${incompletes.length} ligne(s) incomplète(s) : désignation, quantité, prix ou taux manquant.`);
+  },
+
+  "MNT-005": (inv) => {
+    const verifiables = inv.lignes.filter(
+      (l) => !l.aRemiseCharge && l.quantite != null && l.prixUnitaire != null && l.montantNet != null,
+    );
+    if (verifiables.length === 0) return na();
+    const faux = verifiables.filter(
+      (l) => Math.abs((l.montantNet as number) - (l.quantite as number) * (l.prixUnitaire as number)) > 0.01,
+    );
+    return faux.length === 0
+      ? ok()
+      : ko(`${faux.length} ligne(s) : montant net ≠ quantité × prix unitaire.`);
+  },
+
   "MNT-004": (inv) => {
     if (inv.montantDu == null || inv.montantTTC == null) return na();
     const acomptes = inv.acomptes ?? 0;

@@ -82,6 +82,13 @@ describe("évaluation — facture valide", () => {
     expect(report.findings.find((x) => x.ruleId === "MNT-004")?.statut).toBe("reussi");
   });
 
+  it("valide les lignes (MEN-010 complètes, MNT-005 net de ligne)", () => {
+    const inv = parseInvoice({ nom: "f.xml", bytes: toBuffer(CII_VALIDE) });
+    expect(inv.lignes).toHaveLength(1);
+    expect(report.findings.find((x) => x.ruleId === "MEN-010")?.statut).toBe("reussi");
+    expect(report.findings.find((x) => x.ruleId === "MNT-005")?.statut).toBe("reussi");
+  });
+
   it("expose l'identifiant de spécification (specId)", () => {
     const f = report.findings.find((x) => x.ruleId === "MEN-002");
     expect(f?.specId).toBe("FC-M07");

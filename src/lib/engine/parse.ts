@@ -37,6 +37,7 @@ function invoiceVide(
     referenceOrigine: null,
     conditionsPaiement: false,
     vatPointDateCode: null,
+    lignes: [],
     pdf,
     xmlSource,
     erreurParsing: erreur,
