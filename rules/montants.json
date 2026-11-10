@@ -1,6 +1,6 @@
 {
   "fichier": "montants",
-  "description": "Cohérence des montants. Identifiants EN 16931 (BR-CO-xx) à confirmer sur le schematron officiel.",
+  "description": "Cohérence des montants. Sources EN 16931 vérifiées sur le schematron officiel embarqué (schematron/official/cii.sch), lui-même validé au moteur de référence Saxon (voir docs/validation-differentielle.md).",
   "regles": [
     {
       "id": "MNT-001",
@@ -8,8 +8,8 @@
       "libelle": "Cohérence HT + TVA = TTC (BR-CO-15)",
       "categorie": "montants",
       "severite": "bloquant",
-      "source": "EN 16931 — BR-CO-15 (Grand total = total HT + total TVA). Identifiant à confirmer sur le schematron.",
-      "aVerifier": true,
+      "source": "EN 16931 — [BR-CO-15] Invoice total amount with VAT (BT-112) = Invoice total amount without VAT (BT-109) + Invoice total VAT amount (BT-110). (Assertion présente dans le schematron officiel EN 16931, vérifiée par différentiel Saxon.)",
+      "aVerifier": false,
       "messageOk": "Total TTC = Total HT + Total TVA.",
       "commentCorriger": "Vérifiez votre calcul : le Total TTC doit être égal au Total HT augmenté du Total de TVA (tolérance d'arrondi d'un centime).",
       "infobulle": "HT : montant hors taxe. TVA : taxe sur la valeur ajoutée. TTC : toutes taxes comprises."
@@ -19,8 +19,8 @@
       "libelle": "Montant TTC (dû) présent",
       "categorie": "montants",
       "severite": "bloquant",
-      "source": "EN 16931 — montant dû (BT-115) ; mentions obligatoires CGI art. 242 nonies A.",
-      "aVerifier": true,
+      "source": "EN 16931 — [BR-14] An Invoice shall have the Invoice total amount with VAT (BT-112). (Assertion du schematron officiel EN 16931, vérifiée par différentiel Saxon.) Mention obligatoire CGI art. 242 nonies A.",
+      "aVerifier": false,
       "messageOk": "Le montant TTC est renseigné.",
       "commentCorriger": "Le montant total TTC (montant dû) doit être présent dans le récapitulatif des montants.",
       "infobulle": "Montant total que le client doit régler, taxes comprises."
@@ -30,8 +30,8 @@
       "libelle": "Montants positifs (facture vs avoir)",
       "categorie": "montants",
       "severite": "avertissement",
-      "source": "EN 16931 — type de document (BT-3) : 380 facture / 381 avoir. Identifiant à confirmer.",
-      "aVerifier": true,
+      "source": "Contrôle de cohérence non normatif : EN 16931 n'impose PAS la positivité des montants (un avoir — type 381 — ou des régularisations peuvent être négatifs ; seules des règles de décimales, ex. BR-DEC-*, s'appliquent). Simple alerte, jamais bloquant.",
+      "aVerifier": false,
       "messageOk": "Les montants sont positifs.",
       "commentCorriger": "Des montants négatifs ne sont attendus que pour un avoir. Pour une facture, vérifiez les signes.",
       "infobulle": "Un avoir (note de crédit) est un document distinct d'une facture."
@@ -39,26 +39,26 @@
     {
       "id": "MNT-004",
       "specId": "FC-C06",
-      "libelle": "Net à payer = TTC − acomptes",
+      "libelle": "Net à payer = TTC − acomptes (BR-CO-16)",
       "categorie": "montants",
       "severite": "bloquant",
-      "source": "EN 16931 — montant dû (BT-115) = grand total (BT-112) − acomptes (BT-113). Identifiant à confirmer.",
-      "aVerifier": true,
+      "source": "EN 16931 — [BR-CO-16] Amount due for payment (BT-115) = Invoice total amount with VAT (BT-112) − Paid amount (BT-113) + Rounding amount (BT-114). Le moteur suppose un arrondi (BT-114) nul ; l'assertion complète, arrondi inclus, est portée par le schematron officiel (différentiel Saxon).",
+      "aVerifier": false,
       "messageOk": "Le net à payer correspond au TTC diminué des acomptes.",
-      "commentCorriger": "Vérifiez que le montant dû est égal au total TTC diminué des acomptes déjà versés.",
+      "commentCorriger": "Vérifiez que le montant dû est égal au total TTC diminué des acomptes déjà versés (et de l'éventuel arrondi).",
       "infobulle": "Net à payer : ce qui reste dû après déduction des acomptes."
     },
     {
       "id": "MNT-005",
       "specId": "FC-C01",
-      "libelle": "Montant net de ligne = quantité × prix unitaire",
+      "libelle": "Cohérence du montant de ligne (quantité × prix unitaire)",
       "categorie": "montants",
-      "severite": "bloquant",
-      "source": "EN 16931 — montant net de ligne (BT-131) = quantité × prix unitaire net, hors remises/frais de ligne. Identifiant à confirmer.",
-      "aVerifier": true,
+      "severite": "avertissement",
+      "source": "Contrôle de cohérence NON normatif. EN 16931 impose la présence du montant net de ligne ([BR-24] BT-131) et du prix unitaire net ([BR-26] BT-146, [BR-27] non négatif), mais N'IMPOSE PAS l'égalité BT-131 = quantité × prix unitaire : la quantité de base (BT-149/BT-150) et les remises/frais de ligne peuvent légitimement l'en écarter. D'où une simple alerte (jamais bloquant).",
+      "aVerifier": false,
       "messageOk": "Le montant net de chaque ligne correspond à quantité × prix unitaire.",
-      "commentCorriger": "Vérifiez le calcul de chaque ligne : montant net = quantité × prix unitaire net (hors remises et frais de ligne).",
-      "infobulle": "Contrôle vérifié uniquement sur les lignes sans remise ni frais au niveau ligne."
+      "commentCorriger": "Si l'écart n'est pas justifié par une quantité de base ou une remise de ligne, vérifiez le calcul : montant net ≈ quantité × prix unitaire net.",
+      "infobulle": "Alerte indicative : contrôle effectué uniquement sur les lignes sans remise ni frais au niveau ligne. EN 16931 n'exige pas cette égalité."
     }
   ]
 }

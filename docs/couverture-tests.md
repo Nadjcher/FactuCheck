@@ -12,45 +12,53 @@ Réponse à la consigne QA n°5. La transparence prime : les cases vides sont de
 | Indicateur | Valeur |
 |---|---|
 | Règles au catalogue | 28 |
-| Source réglementaire vérifiée | 22 / 28 (6 encore « À VÉRIFIER ») |
+| Source **renseignée** (texte présent) | 28 / 28 |
+| Source **formellement vérifiée** (`aVerifier:false`) | 9 / 28 (19 encore « À VÉRIFIER ») |
 | Règles avec cas **OK** testé (passe sur facture conforme) | 11 / 28 |
 | Règles avec cas **KO** testé (corpus ou unitaire) | 12 / 28 |
 | — dont corpus versionné (`fixtures-corpus/`) | 11 |
+
+**Deux niveaux de source.** *Renseignée* = un texte de source est présent dans le
+catalogue. *Vérifiée* = ce texte a été confirmé sur une source autoritative (ici
+le schematron officiel EN 16931/FNFE embarqué, lui-même validé par différentiel
+Saxon) et le drapeau `aVerifier` est passé à `false`. Le squelette initial a tout
+marqué « à vérifier » ; on ne bascule qu'après confirmation, jamais par confort.
 
 ## Par règle
 
 | specId | ruleId | sévérité | exhaustif | source | cas OK | cas KO |
 |---|---|---|---|---|---|---|
-| FC-C01 | `MNT-005` | bloquant | oui | **À VÉRIFIER** | ✓ | ✓ |
-| FC-C05 | `MNT-001` | bloquant | oui | **À VÉRIFIER** | ✓ | ✓ |
-| FC-C06 | `MNT-004` | bloquant | oui | **À VÉRIFIER** | ✓ | — |
-| FC-M01 | `NUM-001` | bloquant | oui | ✓ | — | ✓ |
-| FC-M01 | `NUM-002` | avertissement | oui | ✓ | — | — |
-| FC-M02 | `DAT-001` | bloquant | oui | ✓ | — | ✓ |
-| FC-M02 | `DAT-002` | avertissement | oui | ✓ | — | — |
-| FC-M04 | `MEN-001` | bloquant | oui | ✓ | — | ✓ |
-| FC-M05 | `MEN-003` | avertissement | oui | ✓ | — | — |
-| FC-M07 | `MEN-002` | bloquant | oui | ✓ | ✓ | ✓ |
-| FC-M08 | `MEN-004` | avertissement | oui | ✓ | — | ✓ (unit) |
-| FC-M09 | `MEN-005` | avertissement | oui | ✓ | — | — |
-| FC-M10 | `MEN-007` | avertissement | oui | **À VÉRIFIER** | ✓ | — |
-| FC-M11 | `MEN-006` | avertissement | oui | ✓ | — | — |
-| FC-M12 | `MEN-009` | bloquant | oui | ✓ | — | — |
-| FC-M13 | `MEN-010` | bloquant | oui | ✓ | ✓ | ✓ |
-| FC-M14 | `MEN-008` | bloquant | oui | ✓ | ✓ | ✓ |
-| FC-S01 | `FMT-001` | bloquant | oui | ✓ | — | — |
-| FC-S02 | `PDF-001` | bloquant | non | ✓ | ✓ | — |
-| FC-S03 | `PDF-003` | bloquant | oui | ✓ | ✓ | ✓ |
-| FC-S04 | `PDF-004` | avertissement | oui | ✓ | — | — |
-| FC-S05 | `FMT-003` | bloquant | oui | **À VÉRIFIER** | ✓ | ✓ |
-| FC-S06 | `FMT-005` | bloquant | non | ✓ | — | ✓ |
-| FC-S07 | `FMT-004` | avertissement | oui | ✓ | — | — |
-| — | `FMT-002` | avertissement | oui | ✓ | — | — |
-| — | `MNT-002` | bloquant | oui | ✓ | — | — |
-| — | `MNT-003` | avertissement | oui | **À VÉRIFIER** | — | — |
-| — | `PDF-002` | bloquant | oui | ✓ | ✓ | — |
+| FC-C01 | `MNT-005` | avertissement | oui | ✓ vérifiée | ✓ | ✓ |
+| FC-C05 | `MNT-001` | bloquant | oui | ✓ vérifiée | ✓ | ✓ |
+| FC-C06 | `MNT-004` | bloquant | oui | ✓ vérifiée | ✓ | — |
+| FC-M01 | `NUM-001` | bloquant | oui | ✓ vérifiée | — | ✓ |
+| FC-M01 | `NUM-002` | avertissement | oui | ○ à confirmer | — | — |
+| FC-M02 | `DAT-001` | bloquant | oui | ✓ vérifiée | — | ✓ |
+| FC-M02 | `DAT-002` | avertissement | oui | ○ à confirmer | — | — |
+| FC-M04 | `MEN-001` | bloquant | oui | ○ à confirmer | — | ✓ |
+| FC-M05 | `MEN-003` | avertissement | oui | ○ à confirmer | — | — |
+| FC-M07 | `MEN-002` | bloquant | oui | ○ à confirmer | ✓ | ✓ |
+| FC-M08 | `MEN-004` | avertissement | oui | ○ à confirmer | — | ✓ (unit) |
+| FC-M09 | `MEN-005` | avertissement | oui | ○ à confirmer | — | — |
+| FC-M10 | `MEN-007` | avertissement | oui | ✓ vérifiée | ✓ | — |
+| FC-M11 | `MEN-006` | avertissement | oui | ○ à confirmer | — | — |
+| FC-M12 | `MEN-009` | bloquant | oui | ○ à confirmer | — | — |
+| FC-M13 | `MEN-010` | bloquant | oui | ○ à confirmer | ✓ | ✓ |
+| FC-M14 | `MEN-008` | bloquant | oui | ○ à confirmer | ✓ | ✓ |
+| FC-S01 | `FMT-001` | bloquant | oui | ○ à confirmer | — | — |
+| FC-S02 | `PDF-001` | bloquant | non | ○ à confirmer | ✓ | — |
+| FC-S03 | `PDF-003` | bloquant | oui | ○ à confirmer | ✓ | ✓ |
+| FC-S04 | `PDF-004` | avertissement | oui | ○ à confirmer | — | — |
+| FC-S05 | `FMT-003` | bloquant | oui | ○ à confirmer | ✓ | ✓ |
+| FC-S06 | `FMT-005` | bloquant | non | ○ à confirmer | — | ✓ |
+| FC-S07 | `FMT-004` | avertissement | oui | ○ à confirmer | — | — |
+| — | `FMT-002` | avertissement | oui | ✓ vérifiée | — | — |
+| — | `MNT-002` | bloquant | oui | ✓ vérifiée | — | — |
+| — | `MNT-003` | avertissement | oui | ✓ vérifiée | — | — |
+| — | `PDF-002` | bloquant | oui | ○ à confirmer | ✓ | — |
 
-**Lecture.** *cas OK* = une facture conforme ne déclenche pas la règle (statut
+**Lecture.** *source* : ✓ vérifiée (`aVerifier:false`) · ○ renseignée, à confirmer ·
+✗ absente. *cas OK* = une facture conforme ne déclenche pas la règle (statut
 `reussi` asserté). *cas KO* = une facture fautive la déclenche (fixture du corpus,
 ou assertion unitaire « (unit) »). *exhaustif = non* → la règle ne peut pas conclure
 seule à la conformité (PDF/A-3, XSD) : le rapport reste « Contrôle partiel ».
@@ -86,7 +94,11 @@ intent, polices) reste hors moteur → FC-S02/FC-S06 `exhaustif:false`, verdict
 - **FC-S02 (PDF/A-3)** et **FC-S06 (XSD)** sont `exhaustif: non` : validation
   structurelle complète = services externes (veraPDF, XSD natif) non branchés.
 - **FC-M09** reste « À VÉRIFIER » : passage exact de la norme XP Z12-012 non cité.
-- 6 règles sans source officielle vérifiée restent « À VÉRIFIER ».
+- **FC-S05 (FMT-003)** reste « À VÉRIFIER » : règle d'acceptation plateforme
+  (spec DGFiP/PDP externe), pas de passage officiel citable à ce stade.
+- 19 règles sur 28 restent `aVerifier:true` : la plupart ont une
+  source renseignée (CGI, EN 16931) mais pas encore formellement confirmée. À
+  basculer au fur et à mesure, uniquement sur source autoritative.
 
 ## Régénérer
 

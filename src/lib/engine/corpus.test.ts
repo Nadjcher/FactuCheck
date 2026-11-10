@@ -14,6 +14,7 @@ interface Cas {
   conforme?: boolean;
   ruleId?: string;
   specId?: string;
+  attendu?: "bloquant" | "avertissement"; // sévérité attendue de la règle ciblée (défaut bloquant)
 }
 
 const manifest: Cas[] = JSON.parse(
@@ -37,12 +38,15 @@ describe("jeu de factures de test (fixtures-corpus)", () => {
         expect(analyse(cas.fichier).conforme).toBe(true);
       });
     } else {
-      it(`${cas.fichier} → bloque sur ${cas.ruleId} (${cas.specId})`, () => {
+      const attendu = cas.attendu ?? "bloquant";
+      const verbe = attendu === "bloquant" ? "bloque" : "alerte";
+      it(`${cas.fichier} → ${verbe} sur ${cas.ruleId} (${cas.specId})`, () => {
         const report = analyse(cas.fichier);
-        expect(report.conforme).toBe(false);
         const f = report.findings.find((x) => x.ruleId === cas.ruleId);
-        expect(f?.statut).toBe("bloquant");
+        expect(f?.statut).toBe(attendu);
         expect(f?.specId).toBe(cas.specId);
+        // Un bloquant rend non conforme ; un avertissement seul laisse conforme.
+        if (attendu === "bloquant") expect(report.conforme).toBe(false);
       });
     }
   }

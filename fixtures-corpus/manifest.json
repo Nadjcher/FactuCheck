@@ -56,7 +56,8 @@
     "fichier": "KO_FC-C01_net-ligne.xml",
     "format": "CII",
     "ruleId": "MNT-005",
-    "specId": "FC-C01"
+    "specId": "FC-C01",
+    "attendu": "avertissement"
   },
   {
     "fichier": "KO_FC-S06_structure.xml",

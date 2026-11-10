@@ -80,8 +80,8 @@
       "libelle": "Code d'exigibilité de la TVA — option « sur les débits » (BT-8)",
       "categorie": "mentions",
       "severite": "avertissement",
-      "source": "EN 16931 — BT-8 (Value added tax point date code). Option « TVA sur les débits ». Liste de codes à confirmer (UNTDID 2005/2475).",
-      "aVerifier": true,
+      "source": "EN 16931 — BT-8 Value added tax point date code. [BR-CL-06] le code doit respecter une restriction de UNTDID 2475 ; [BR-CO-03] BT-7 (date d'exigibilité) et BT-8 (code) sont mutuellement exclusifs. Ce contrôle vérifie la PRÉSENCE du code ; la valeur et l'exclusivité sont portées par le schematron officiel (différentiel Saxon).",
+      "aVerifier": false,
       "messageOk": "Le code d'exigibilité de la TVA (BT-8) est renseigné.",
       "commentCorriger": "Lorsque l'option « TVA sur les débits » (ou un autre régime d'exigibilité) s'applique, renseignez le code d'exigibilité de la TVA (BT-8).",
       "infobulle": "BT-8 : indique le moment où la TVA devient exigible (ex. « sur les débits »)."

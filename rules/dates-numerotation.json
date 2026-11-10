@@ -8,8 +8,8 @@
       "libelle": "Date d'émission présente",
       "categorie": "dates",
       "severite": "bloquant",
-      "source": "CGI art. 242 nonies A ; EN 16931 — date d'émission (BT-2).",
-      "aVerifier": true,
+      "source": "EN 16931 — [BR-03] An Invoice shall have an Invoice issue date (BT-2). (Assertion du schematron officiel EN 16931, vérifiée par différentiel Saxon.) Mention obligatoire CGI art. 242 nonies A.",
+      "aVerifier": false,
       "messageOk": "La date d'émission est renseignée.",
       "commentCorriger": "Renseignez la date d'émission de la facture.",
       "infobulle": "Date à laquelle la facture est établie."
@@ -32,8 +32,8 @@
       "libelle": "Numéro de facture présent",
       "categorie": "numerotation",
       "severite": "bloquant",
-      "source": "CGI art. 242 nonies A — numéro unique basé sur une séquence chronologique et continue ; EN 16931 BT-1.",
-      "aVerifier": true,
+      "source": "EN 16931 — [BR-02] An Invoice shall have an Invoice number (BT-1). (Assertion du schematron officiel EN 16931, vérifiée par différentiel Saxon.) Mention obligatoire CGI art. 242 nonies A (numéro unique, séquence chronologique et continue).",
+      "aVerifier": false,
       "messageOk": "Le numéro de facture est renseigné.",
       "commentCorriger": "Attribuez un numéro de facture unique et séquentiel.",
       "infobulle": "La numérotation doit être chronologique, continue et sans trou."

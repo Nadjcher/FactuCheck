@@ -20,13 +20,18 @@ for (const f of fs.readdirSync(RULES_DIR).filter((f) => f.endsWith(".json"))) {
   const arr = j.regles || j.motifs || (Array.isArray(j) ? j : []);
   for (const r of arr) {
     if (!r.id) continue;
-    const src = Boolean(r.source) && !/à vérifier|à confirmer|a confirmer/i.test(r.source);
+    // Deux niveaux : source RENSEIGNÉE (texte présent) vs formellement VÉRIFIÉE
+    // (drapeau explicite aVerifier:false + source). Le squelette initial a tout
+    // marqué aVerifier:true ; on ne bascule qu'après confirmation d'une source.
+    const renseignee = Boolean(r.source);
+    const verifiee = r.aVerifier === false && renseignee;
     rules.push({
       id: r.id,
       specId: r.specId || "",
       sev: r.severite || "",
       exhaustif: r.exhaustif === false ? "non" : "oui",
-      source: src,
+      renseignee,
+      verifiee,
     });
   }
 }
@@ -83,17 +88,19 @@ for (const r of rules) {
 // 4. Rendu Markdown
 rules.sort((a, b) => (a.specId || "zz99").localeCompare(b.specId || "zz99", undefined, { numeric: true }));
 const total = rules.length;
-const nSrc = rules.filter((r) => r.source).length;
+const nRens = rules.filter((r) => r.renseignee).length;
+const nVerif = rules.filter((r) => r.verifiee).length;
 const nUnit = rules.filter((r) => r.unit).length;
 const nCorp = rules.filter((r) => r.corpus).length;
 const nOk = rules.filter((r) => r.ok).length;
 const nKo = rules.filter((r) => r.corpus || (r.unit && !r.ok)).length;
 
+const srcCell = (r) => (r.verifiee ? "✓ vérifiée" : r.renseignee ? "○ à confirmer" : "✗ absente");
 const lignes = rules.map((r) => {
   const koUnit = r.unit && !r.ok;
-  return `| ${r.specId || "—"} | \`${r.id}\` | ${r.sev} | ${r.exhaustif} | ${
-    r.source ? "✓" : "**À VÉRIFIER**"
-  } | ${r.ok ? "✓" : "—"} | ${r.corpus ? "✓" : koUnit ? "✓ (unit)" : "—"} |`;
+  return `| ${r.specId || "—"} | \`${r.id}\` | ${r.sev} | ${r.exhaustif} | ${srcCell(r)} | ${
+    r.ok ? "✓" : "—"
+  } | ${r.corpus ? "✓" : koUnit ? "✓ (unit)" : "—"} |`;
 });
 
 const md = `# Couverture de tests — par règle, par format, par profil
@@ -110,10 +117,17 @@ Réponse à la consigne QA n°5. La transparence prime : les cases vides sont de
 | Indicateur | Valeur |
 |---|---|
 | Règles au catalogue | ${total} |
-| Source réglementaire vérifiée | ${nSrc} / ${total} (${total - nSrc} encore « À VÉRIFIER ») |
+| Source **renseignée** (texte présent) | ${nRens} / ${total} |
+| Source **formellement vérifiée** (\`aVerifier:false\`) | ${nVerif} / ${total} (${total - nVerif} encore « À VÉRIFIER ») |
 | Règles avec cas **OK** testé (passe sur facture conforme) | ${nOk} / ${total} |
 | Règles avec cas **KO** testé (corpus ou unitaire) | ${nKo} / ${total} |
 | — dont corpus versionné (\`fixtures-corpus/\`) | ${nCorp} |
+
+**Deux niveaux de source.** *Renseignée* = un texte de source est présent dans le
+catalogue. *Vérifiée* = ce texte a été confirmé sur une source autoritative (ici
+le schematron officiel EN 16931/FNFE embarqué, lui-même validé par différentiel
+Saxon) et le drapeau \`aVerifier\` est passé à \`false\`. Le squelette initial a tout
+marqué « à vérifier » ; on ne bascule qu'après confirmation, jamais par confort.
 
 ## Par règle
 
@@ -121,7 +135,8 @@ Réponse à la consigne QA n°5. La transparence prime : les cases vides sont de
 |---|---|---|---|---|---|---|
 ${lignes.join("\n")}
 
-**Lecture.** *cas OK* = une facture conforme ne déclenche pas la règle (statut
+**Lecture.** *source* : ✓ vérifiée (\`aVerifier:false\`) · ○ renseignée, à confirmer ·
+✗ absente. *cas OK* = une facture conforme ne déclenche pas la règle (statut
 \`reussi\` asserté). *cas KO* = une facture fautive la déclenche (fixture du corpus,
 ou assertion unitaire « (unit) »). *exhaustif = non* → la règle ne peut pas conclure
 seule à la conformité (PDF/A-3, XSD) : le rapport reste « Contrôle partiel ».
@@ -157,7 +172,11 @@ intent, polices) reste hors moteur → FC-S02/FC-S06 \`exhaustif:false\`, verdic
 - **FC-S02 (PDF/A-3)** et **FC-S06 (XSD)** sont \`exhaustif: non\` : validation
   structurelle complète = services externes (veraPDF, XSD natif) non branchés.
 - **FC-M09** reste « À VÉRIFIER » : passage exact de la norme XP Z12-012 non cité.
-- ${total - nSrc} règles sans source officielle vérifiée restent « À VÉRIFIER ».
+- **FC-S05 (FMT-003)** reste « À VÉRIFIER » : règle d'acceptation plateforme
+  (spec DGFiP/PDP externe), pas de passage officiel citable à ce stade.
+- ${total - nVerif} règles sur ${total} restent \`aVerifier:true\` : la plupart ont une
+  source renseignée (CGI, EN 16931) mais pas encore formellement confirmée. À
+  basculer au fur et à mesure, uniquement sur source autoritative.
 
 ## Régénérer
 
@@ -167,4 +186,4 @@ node scripts/coverage-matrix.mjs   # réécrit ce fichier
 `;
 
 fs.writeFileSync(path.join(ROOT, "docs/couverture-tests.md"), md);
-console.log(`docs/couverture-tests.md écrit — ${total} règles, source ${nSrc}, OK ${nOk}, KO ${nKo}.`);
+console.log(`docs/couverture-tests.md écrit — ${total} règles, renseignées ${nRens}, vérifiées ${nVerif}, OK ${nOk}, KO ${nKo}.`);
