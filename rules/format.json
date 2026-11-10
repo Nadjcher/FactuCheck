@@ -43,8 +43,8 @@
       "libelle": "Version Factur-X",
       "categorie": "format",
       "severite": "avertissement",
-      "source": "Factur-X (FNFE-MPE) — version 1.09 en vigueur depuis le 1er juillet 2026 (déclarée dans les métadonnées XMP).",
-      "aVerifier": true,
+      "source": "Factur-X (FNFE-MPE) — la version du schéma est déclarée dans les métadonnées XMP (fx:Version). Version en vigueur : Factur-X 1.09 (publiée avec ZUGFeRD 2.5 le 10 juin 2026 par le FNFE-MPE, applicable au 1er juillet 2026 ; corrigendum 1.09.2 publié le 4 août 2026). Le moteur contrôle la PRÉSENCE de la version.",
+      "aVerifier": false,
       "messageOk": "La version Factur-X est déclarée.",
       "commentCorriger": "Générez la facture avec la version Factur-X en vigueur (1.09 depuis le 1er juillet 2026). La version est portée par les métadonnées XMP.",
       "infobulle": "La version de la spécification Factur-X utilisée pour produire le fichier."
