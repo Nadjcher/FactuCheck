@@ -1,0 +1,13 @@
+[
+  {
+    "fichier": "OK_FACTURX_conforme.pdf",
+    "format": "FACTURX_PDF",
+    "conforme": true
+  },
+  {
+    "fichier": "KO_FACTURX_FC-S03_nom.pdf",
+    "format": "FACTURX_PDF",
+    "ruleId": "PDF-003",
+    "specId": "FC-S03"
+  }
+]

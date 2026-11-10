@@ -31,9 +31,36 @@ for (const f of fs.readdirSync(RULES_DIR).filter((f) => f.endsWith(".json"))) {
   }
 }
 
-// 2. Corpus versionné : fixtures KO par règle
-const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, "fixtures-corpus/manifest.json"), "utf8"));
+// 2. Corpus versionné (XML + PDF) : fixtures OK/KO par règle et par format
+function lireManifeste(rel) {
+  const p = path.join(ROOT, rel);
+  return fs.existsSync(p) ? JSON.parse(fs.readFileSync(p, "utf8")) : [];
+}
+const manifest = [
+  ...lireManifeste("fixtures-corpus/manifest.json"),
+  ...lireManifeste("fixtures-corpus-pdf/manifest.json"),
+];
 const corpusKO = new Set(manifest.filter((m) => m.ruleId).map((m) => m.ruleId));
+
+// Couverture corpus par format : fixtures OK et KO présentes
+const parFormat = {};
+for (const m of manifest) {
+  const f = m.format || "?";
+  parFormat[f] ??= { ok: 0, ko: 0, regles: new Set() };
+  if (m.conforme) parFormat[f].ok++;
+  else {
+    parFormat[f].ko++;
+    if (m.ruleId) parFormat[f].regles.add(m.ruleId);
+  }
+}
+const fmtCell = (f) => {
+  const d = parFormat[f];
+  if (!d) return { ok: "—", ko: "— *(aucune fixture)*" };
+  return {
+    ok: d.ok > 0 ? `✓ (${d.ok})` : "—",
+    ko: d.ko > 0 ? `✓ ${d.ko} règle(s) : ${[...d.regles].join(", ")}` : "—",
+  };
+};
 
 // 3. Tests unitaires : OK (statut reussi) et KO (bloque/avertit) assertés par id
 const testFiles = fs.readdirSync(ENGINE_DIR).filter((f) => /\.test\.ts$/.test(f));
@@ -103,13 +130,17 @@ seule à la conformité (PDF/A-3, XSD) : le rapport reste « Contrôle partiel �
 
 | Format | Parsing | Cas OK (conforme) | Cas KO (corpus) | Schematron officiel |
 |---|---|---|---|---|
-| **CII** | ✓ (\`engine.test.ts\`) | ✓ fixture \`CII_VALIDE\` | ✓ ${corpusKO.size} règles | ✓ EN16931-CII + FNFE-CII (diff. Saxon : 0 écart) |
-| **UBL** | ✓ (\`engine.test.ts\`) | — *(pas de fixture conforme UBL)* | — *(aucune fixture KO UBL)* | fonctions FNFE portées + testées ; schematron non rejoué en diff |
-| **Factur-X (PDF/A-3)** | extraction XML ✓ | — | — *(aucune fixture PDF)* | s.o. (le XML suit le profil CII) |
+| **CII** | ✓ (\`engine.test.ts\`) | ${fmtCell("CII").ok} | ${fmtCell("CII").ko} | ✓ EN16931-CII + FNFE-CII (diff. Saxon : 0 écart) |
+| **UBL** | ✓ (\`engine.test.ts\` + corpus) | ${fmtCell("UBL").ok} | ${fmtCell("UBL").ko} | fonctions FNFE portées + testées ; schematron non rejoué en diff |
+| **Factur-X (PDF/A-3)** | extraction XML ✓ (\`facturx-pdf.test.ts\`) | ${fmtCell("FACTURX_PDF").ok} | ${fmtCell("FACTURX_PDF").ko} | s.o. (le XML embarqué suit le profil CII) |
 
-**Trou connu.** Le corpus KO et les cas OK sont aujourd'hui **CII uniquement**.
-UBL n'a que des tests de parsing ; aucune fixture PDF/A-3 réelle. À combler avant
-d'annoncer « UBL » ou « Factur-X » comme pleinement couverts.
+**Fixtures par format** : CII \`fixtures-corpus/*.xml\`, UBL \`fixtures-corpus/*UBL*.xml\`,
+Factur-X \`fixtures-corpus-pdf/*.pdf\` (générées par \`scripts/make-facturx-pdf.mjs\`).
+
+**Trous restants.** La validation **PDF/A-3 complète** (veraPDF : profil ICC, output
+intent, polices) reste hors moteur → FC-S02/FC-S06 \`exhaustif:false\`, verdict
+« Contrôle partiel ». Le **schematron officiel UBL** n'est pas encore rejoué dans le
+test différentiel Saxon (seul CII l'est).
 
 ## Par profil
 

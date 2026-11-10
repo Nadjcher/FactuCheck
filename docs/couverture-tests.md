@@ -13,9 +13,9 @@ Réponse à la consigne QA n°5. La transparence prime : les cases vides sont de
 |---|---|
 | Règles au catalogue | 28 |
 | Source réglementaire vérifiée | 22 / 28 (6 encore « À VÉRIFIER ») |
-| Règles avec cas **OK** testé (passe sur facture conforme) | 8 / 28 |
-| Règles avec cas **KO** testé (corpus ou unitaire) | 11 / 28 |
-| — dont corpus versionné (`fixtures-corpus/`) | 10 |
+| Règles avec cas **OK** testé (passe sur facture conforme) | 11 / 28 |
+| Règles avec cas **KO** testé (corpus ou unitaire) | 12 / 28 |
+| — dont corpus versionné (`fixtures-corpus/`) | 11 |
 
 ## Par règle
 
@@ -39,8 +39,8 @@ Réponse à la consigne QA n°5. La transparence prime : les cases vides sont de
 | FC-M13 | `MEN-010` | bloquant | oui | ✓ | ✓ | ✓ |
 | FC-M14 | `MEN-008` | bloquant | oui | ✓ | ✓ | ✓ |
 | FC-S01 | `FMT-001` | bloquant | oui | ✓ | — | — |
-| FC-S02 | `PDF-001` | bloquant | non | ✓ | — | — |
-| FC-S03 | `PDF-003` | bloquant | oui | ✓ | — | — |
+| FC-S02 | `PDF-001` | bloquant | non | ✓ | ✓ | — |
+| FC-S03 | `PDF-003` | bloquant | oui | ✓ | ✓ | ✓ |
 | FC-S04 | `PDF-004` | avertissement | oui | ✓ | — | — |
 | FC-S05 | `FMT-003` | bloquant | oui | **À VÉRIFIER** | ✓ | ✓ |
 | FC-S06 | `FMT-005` | bloquant | non | ✓ | — | ✓ |
@@ -48,7 +48,7 @@ Réponse à la consigne QA n°5. La transparence prime : les cases vides sont de
 | — | `FMT-002` | avertissement | oui | ✓ | — | — |
 | — | `MNT-002` | bloquant | oui | ✓ | — | — |
 | — | `MNT-003` | avertissement | oui | **À VÉRIFIER** | — | — |
-| — | `PDF-002` | bloquant | oui | ✓ | — | — |
+| — | `PDF-002` | bloquant | oui | ✓ | ✓ | — |
 
 **Lecture.** *cas OK* = une facture conforme ne déclenche pas la règle (statut
 `reussi` asserté). *cas KO* = une facture fautive la déclenche (fixture du corpus,
@@ -59,13 +59,17 @@ seule à la conformité (PDF/A-3, XSD) : le rapport reste « Contrôle partiel �
 
 | Format | Parsing | Cas OK (conforme) | Cas KO (corpus) | Schematron officiel |
 |---|---|---|---|---|
-| **CII** | ✓ (`engine.test.ts`) | ✓ fixture `CII_VALIDE` | ✓ 10 règles | ✓ EN16931-CII + FNFE-CII (diff. Saxon : 0 écart) |
-| **UBL** | ✓ (`engine.test.ts`) | — *(pas de fixture conforme UBL)* | — *(aucune fixture KO UBL)* | fonctions FNFE portées + testées ; schematron non rejoué en diff |
-| **Factur-X (PDF/A-3)** | extraction XML ✓ | — | — *(aucune fixture PDF)* | s.o. (le XML suit le profil CII) |
+| **CII** | ✓ (`engine.test.ts`) | ✓ (1) | ✓ 10 règle(s) : MEN-002, MEN-001, MNT-001, DAT-001, NUM-001, MEN-008, FMT-003, MEN-010, MNT-005, FMT-005 | ✓ EN16931-CII + FNFE-CII (diff. Saxon : 0 écart) |
+| **UBL** | ✓ (`engine.test.ts` + corpus) | ✓ (1) | ✓ 3 règle(s) : MEN-008, MEN-002, MNT-001 | fonctions FNFE portées + testées ; schematron non rejoué en diff |
+| **Factur-X (PDF/A-3)** | extraction XML ✓ (`facturx-pdf.test.ts`) | ✓ (1) | ✓ 1 règle(s) : PDF-003 | s.o. (le XML embarqué suit le profil CII) |
 
-**Trou connu.** Le corpus KO et les cas OK sont aujourd'hui **CII uniquement**.
-UBL n'a que des tests de parsing ; aucune fixture PDF/A-3 réelle. À combler avant
-d'annoncer « UBL » ou « Factur-X » comme pleinement couverts.
+**Fixtures par format** : CII `fixtures-corpus/*.xml`, UBL `fixtures-corpus/*UBL*.xml`,
+Factur-X `fixtures-corpus-pdf/*.pdf` (générées par `scripts/make-facturx-pdf.mjs`).
+
+**Trous restants.** La validation **PDF/A-3 complète** (veraPDF : profil ICC, output
+intent, polices) reste hors moteur → FC-S02/FC-S06 `exhaustif:false`, verdict
+« Contrôle partiel ». Le **schematron officiel UBL** n'est pas encore rejoué dans le
+test différentiel Saxon (seul CII l'est).
 
 ## Par profil
 

@@ -1,56 +1,90 @@
 [
   {
     "fichier": "OK_CII_conforme.xml",
+    "format": "CII",
     "conforme": true
   },
   {
     "fichier": "KO_FC-M07_siren-client.xml",
+    "format": "CII",
     "ruleId": "MEN-002",
     "specId": "FC-M07"
   },
   {
     "fichier": "KO_FC-M04_siren-cle.xml",
+    "format": "CII",
     "ruleId": "MEN-001",
     "specId": "FC-M04"
   },
   {
     "fichier": "KO_FC-C05_ttc.xml",
+    "format": "CII",
     "ruleId": "MNT-001",
     "specId": "FC-C05"
   },
   {
     "fichier": "KO_FC-M02_date.xml",
+    "format": "CII",
     "ruleId": "DAT-001",
     "specId": "FC-M02"
   },
   {
     "fichier": "KO_FC-M01_numero.xml",
+    "format": "CII",
     "ruleId": "NUM-001",
     "specId": "FC-M01"
   },
   {
     "fichier": "KO_FC-M14_paiement.xml",
+    "format": "CII",
     "ruleId": "MEN-008",
     "specId": "FC-M14"
   },
   {
     "fichier": "KO_FC-S05_profil.xml",
+    "format": "CII",
     "ruleId": "FMT-003",
     "specId": "FC-S05"
   },
   {
     "fichier": "KO_FC-M13_ligne-incomplete.xml",
+    "format": "CII",
     "ruleId": "MEN-010",
     "specId": "FC-M13"
   },
   {
     "fichier": "KO_FC-C01_net-ligne.xml",
+    "format": "CII",
     "ruleId": "MNT-005",
     "specId": "FC-C01"
   },
   {
     "fichier": "KO_FC-S06_structure.xml",
+    "format": "CII",
     "ruleId": "FMT-005",
     "specId": "FC-S06"
+  },
+  {
+    "fichier": "OK_UBL_conforme.xml",
+    "format": "UBL",
+    "conforme": true
+  },
+  {
+    "fichier": "KO_UBL_FC-M14_paiement.xml",
+    "format": "UBL",
+    "ruleId": "MEN-008",
+    "specId": "FC-M14"
+  },
+  {
+    "fichier": "KO_UBL_FC-M07_siren-client.xml",
+    "format": "UBL",
+    "ruleId": "MEN-002",
+    "specId": "FC-M07"
+  },
+  {
+    "fichier": "KO_UBL_FC-C05_ttc.xml",
+    "format": "UBL",
+    "ruleId": "MNT-001",
+    "specId": "FC-C05"
   }
 ]
