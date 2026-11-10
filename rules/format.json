@@ -36,6 +36,18 @@
       "messageOk": "Le profil déclaré est accepté par les plateformes.",
       "commentCorriger": "Une facture par ailleurs correcte peut être refusée si elle déclare un profil non accepté (ex. BASIC). Déclarez le profil EN 16931 ou EXTENDED-CTC-FR dans le BT-24.",
       "infobulle": "Les plateformes agréées contrôlent le profil déclaré (BT-24) et rejettent les profils non prévus pour le CTC français."
+    },
+    {
+      "id": "FMT-004",
+      "specId": "FC-S07",
+      "libelle": "Version Factur-X",
+      "categorie": "format",
+      "severite": "avertissement",
+      "source": "Factur-X (FNFE-MPE) — version 1.09 en vigueur depuis le 1er juillet 2026 (déclarée dans les métadonnées XMP).",
+      "aVerifier": true,
+      "messageOk": "La version Factur-X est déclarée.",
+      "commentCorriger": "Générez la facture avec la version Factur-X en vigueur (1.09 depuis le 1er juillet 2026). La version est portée par les métadonnées XMP.",
+      "infobulle": "La version de la spécification Factur-X utilisée pour produire le fichier."
     }
   ]
 }

@@ -92,6 +92,13 @@ export function parseCII(
     montantTTC:
       toNumber(textAt(sums, "GrandTotalAmount")) ??
       toNumber(textAt(sums, "DuePayableAmount")),
+    montantDu: toNumber(textAt(sums, "DuePayableAmount")),
+    acomptes: toNumber(textAt(sums, "TotalPrepaidAmount")),
+    typeCode: textAt(doc, "TypeCode"),
+    referenceOrigine: textAt(settlement, "InvoiceReferencedDocument.IssuerAssignedID"),
+    conditionsPaiement:
+      get(settlement, "SpecifiedTradePaymentTerms.DueDateDateTime") != null ||
+      textAt(settlement, "SpecifiedTradePaymentTerms.Description") != null,
     // BT-8 : code d'exigibilité de la TVA (ApplicableTradeTax/DueDateTypeCode).
     vatPointDateCode: textAt(settlement, "ApplicableTradeTax.DueDateTypeCode"),
   };

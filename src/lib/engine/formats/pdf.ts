@@ -38,6 +38,12 @@ export function extractFromPdf(buf: Buffer): {
   const estPdf = latin1.startsWith("%PDF");
 
   const aXmp = /<x:xmpmeta|<\?xpacket/.test(latin1);
+
+  // Version Factur-X / ZUGFeRD déclarée dans les métadonnées XMP.
+  const versionMatch =
+    latin1.match(/<(?:fx|zf|rsm):Version>\s*([^<\s]+)\s*<\/(?:fx|zf|rsm):Version>/i) ||
+    latin1.match(/fx:Version\s*=\s*"([^"]+)"/i);
+  const versionFacturx = versionMatch ? versionMatch[1] : null;
   const estPdfA3 =
     /<pdfaid:part>\s*3\s*<\/pdfaid:part>/.test(latin1) ||
     /pdfaid:part\s*=\s*["']?3/.test(latin1);
@@ -79,7 +85,7 @@ export function extractFromPdf(buf: Buffer): {
   const aXmlEmbarque = xml != null || nomXmlEmbarque != null;
 
   return {
-    pdf: { estPdf, estPdfA3, aXmlEmbarque, nomXmlEmbarque, aXmp },
+    pdf: { estPdf, estPdfA3, aXmlEmbarque, nomXmlEmbarque, aXmp, versionFacturx },
     xml,
   };
 }

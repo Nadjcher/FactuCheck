@@ -11,6 +11,7 @@ const PDF_META_VIDE: PdfMeta = {
   aXmlEmbarque: false,
   nomXmlEmbarque: null,
   aXmp: false,
+  versionFacturx: null,
 };
 
 function invoiceVide(
@@ -30,6 +31,11 @@ function invoiceVide(
     montantHT: null,
     montantTVA: null,
     montantTTC: null,
+    montantDu: null,
+    acomptes: null,
+    typeCode: null,
+    referenceOrigine: null,
+    conditionsPaiement: false,
     vatPointDateCode: null,
     pdf,
     xmlSource,

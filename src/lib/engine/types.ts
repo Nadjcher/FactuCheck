@@ -58,6 +58,8 @@ export interface PdfMeta {
   aXmlEmbarque: boolean;
   nomXmlEmbarque: string | null;
   aXmp: boolean;
+  /** Version Factur-X déclarée dans les métadonnées XMP (ex. « 1.0 »). */
+  versionFacturx: string | null;
 }
 
 /** Partie (émetteur ou client). */
@@ -80,6 +82,16 @@ export interface ParsedInvoice {
   montantHT: number | null;
   montantTVA: number | null;
   montantTTC: number | null;
+  /** Net à payer (BT-115) : DuePayableAmount / PayableAmount. */
+  montantDu: number | null;
+  /** Acomptes déjà versés (BT-113) : TotalPrepaidAmount / PrepaidAmount. */
+  acomptes: number | null;
+  /** Code type de document (BT-3) : 380 facture, 381 avoir. */
+  typeCode: string | null;
+  /** Référence à la facture d'origine (avoir / rectificative). */
+  referenceOrigine: string | null;
+  /** Échéance ou conditions de paiement présentes. */
+  conditionsPaiement: boolean;
   /** BT-8 : code d'exigibilité de la TVA (option « TVA sur les débits »). */
   vatPointDateCode: string | null;
   pdf: PdfMeta;

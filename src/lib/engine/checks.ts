@@ -63,6 +63,13 @@ export const checks: Record<string, CheckFn> = {
         );
   },
 
+  "FMT-004": (inv) => {
+    if (!inv.pdf.estPdf) return na();
+    return inv.pdf.versionFacturx
+      ? ok(`Version Factur-X : ${inv.pdf.versionFacturx}.`)
+      : ko("Version Factur-X non déclarée dans les métadonnées XMP.");
+  },
+
   // --- PDF / conteneur Factur-X ------------------------------------------
   "PDF-001": (inv) =>
     !inv.pdf.estPdf
@@ -126,6 +133,19 @@ export const checks: Record<string, CheckFn> = {
       ? ok(`Code d'exigibilité TVA (BT-8) : ${inv.vatPointDateCode}.`)
       : na(),
 
+  "MEN-008": (inv) =>
+    inv.conditionsPaiement
+      ? ok()
+      : ko("Ni date d'échéance ni conditions de paiement."),
+
+  // Applicable uniquement à un avoir (type 381).
+  "MEN-009": (inv) => {
+    if (inv.typeCode !== "381") return na();
+    return inv.referenceOrigine
+      ? ok(`Facture d'origine : ${inv.referenceOrigine}.`)
+      : ko("Avoir sans référence à la facture d'origine.");
+  },
+
   // Applicable seulement si l'opération semble exonérée (TVA = 0).
   "MEN-006": (inv) => {
     if (inv.montantTVA == null || inv.montantTVA > 0) return na();
@@ -162,6 +182,17 @@ export const checks: Record<string, CheckFn> = {
     );
     if (vals.length === 0) return na();
     return vals.every((v) => v >= 0) ? ok() : ko("Au moins un montant est négatif.");
+  },
+
+  "MNT-004": (inv) => {
+    if (inv.montantDu == null || inv.montantTTC == null) return na();
+    const acomptes = inv.acomptes ?? 0;
+    const attendu = inv.montantTTC - acomptes;
+    return Math.abs(inv.montantDu - attendu) <= 0.01
+      ? ok(`Net à payer : ${formaterEuro(inv.montantDu)}.`)
+      : ko(
+          `Net à payer ${formaterEuro(inv.montantDu)} ≠ TTC ${formaterEuro(inv.montantTTC)} − acomptes ${formaterEuro(acomptes)} = ${formaterEuro(attendu)}.`,
+        );
   },
 
   // --- Dates & numérotation ----------------------------------------------

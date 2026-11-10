@@ -76,6 +76,16 @@ describe("évaluation — facture valide", () => {
     const f = report.findings.find((x) => x.ruleId === "MEN-007");
     expect(f?.statut).toBe("reussi");
   });
+
+  it("valide les conditions de paiement (MEN-008) et le net à payer (MNT-004)", () => {
+    expect(report.findings.find((x) => x.ruleId === "MEN-008")?.statut).toBe("reussi");
+    expect(report.findings.find((x) => x.ruleId === "MNT-004")?.statut).toBe("reussi");
+  });
+
+  it("expose l'identifiant de spécification (specId)", () => {
+    const f = report.findings.find((x) => x.ruleId === "MEN-002");
+    expect(f?.specId).toBe("FC-M07");
+  });
 });
 
 describe("évaluation — facture invalide", () => {

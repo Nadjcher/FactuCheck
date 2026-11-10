@@ -85,6 +85,30 @@
       "messageOk": "Le code d'exigibilité de la TVA (BT-8) est renseigné.",
       "commentCorriger": "Lorsque l'option « TVA sur les débits » (ou un autre régime d'exigibilité) s'applique, renseignez le code d'exigibilité de la TVA (BT-8).",
       "infobulle": "BT-8 : indique le moment où la TVA devient exigible (ex. « sur les débits »)."
+    },
+    {
+      "id": "MEN-008",
+      "specId": "FC-M14",
+      "libelle": "Échéance ou conditions de paiement",
+      "categorie": "mentions",
+      "severite": "bloquant",
+      "source": "CGI art. 242 nonies A — date d'échéance / conditions de règlement ; EN 16931 BT-9 / BT-20.",
+      "aVerifier": true,
+      "messageOk": "Une date d'échéance ou des conditions de paiement sont présentes.",
+      "commentCorriger": "Renseignez la date d'échéance du paiement (BT-9) ou les conditions de règlement (BT-20).",
+      "infobulle": "Date limite de paiement, ou texte décrivant les conditions de règlement."
+    },
+    {
+      "id": "MEN-009",
+      "specId": "FC-M12",
+      "libelle": "Avoir : référence à la facture d'origine",
+      "categorie": "mentions",
+      "severite": "bloquant",
+      "source": "CGI art. 242 nonies A — un avoir ou une facture rectificative référence la facture d'origine ; EN 16931 BG-3.",
+      "aVerifier": true,
+      "messageOk": "La référence à la facture d'origine est présente.",
+      "commentCorriger": "Pour un avoir (type 381) ou une facture rectificative, indiquez le numéro de la facture d'origine (document référencé).",
+      "infobulle": "Un avoir (note de crédit) doit pointer la facture qu'il corrige ou annule."
     }
   ]
 }

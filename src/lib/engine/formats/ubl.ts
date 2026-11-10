@@ -55,6 +55,13 @@ export function parseUBL(
     montantTTC:
       toNumber(textAt(totals, "TaxInclusiveAmount")) ??
       toNumber(textAt(totals, "PayableAmount")),
+    montantDu: toNumber(textAt(totals, "PayableAmount")),
+    acomptes: toNumber(textAt(totals, "PrepaidAmount")),
+    typeCode: textAt(inv, "InvoiceTypeCode") ?? textAt(inv, "CreditNoteTypeCode"),
+    referenceOrigine: textAt(inv, "BillingReference.InvoiceDocumentReference.ID"),
+    conditionsPaiement:
+      get(inv, "PaymentTerms") != null ||
+      textAt(inv, "PaymentMeans.PaymentDueDate") != null,
     // BT-8 : code d'exigibilité de la TVA (InvoicePeriod/DescriptionCode).
     vatPointDateCode: textAt(inv, "InvoicePeriod.DescriptionCode"),
   };
