@@ -28,6 +28,9 @@ next-env.d.ts
 # moteur de référence du test différentiel (Saxon, téléchargé)
 /.saxon/
 
+# validateur PDF/A de référence (veraPDF, téléchargé)
+/.verapdf/
+
 # misc
 .DS_Store
 *.pem

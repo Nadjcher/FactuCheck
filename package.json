@@ -17,7 +17,9 @@
     "corpus:pdf": "node scripts/make-facturx-pdf.mjs",
     "coverage:matrix": "node scripts/coverage-matrix.mjs",
     "diff:setup": "node scripts/fetch-official-schematron.mjs && node scripts/diff-saxon.mjs",
-    "diff:run": "SAXON_DIR=.saxon DIFF_CORPUS=fixtures-corpus vitest run differential.saxon"
+    "diff:run": "SAXON_DIR=.saxon DIFF_CORPUS=fixtures-corpus vitest run differential.saxon",
+    "verapdf:setup": "node scripts/verapdf-setup.mjs",
+    "verapdf:run": "VERAPDF_CLI=.verapdf/app/verapdf vitest run verapdf.pdfa"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",
