@@ -16,7 +16,7 @@
     "corpus:generate": "node scripts/generate-corpus.mjs",
     "corpus:pdf": "node scripts/make-facturx-pdf.mjs",
     "coverage:matrix": "node scripts/coverage-matrix.mjs",
-    "diff:setup": "node scripts/diff-saxon.mjs",
+    "diff:setup": "node scripts/fetch-official-schematron.mjs && node scripts/diff-saxon.mjs",
     "diff:run": "SAXON_DIR=.saxon DIFF_CORPUS=fixtures-corpus vitest run differential.saxon"
   },
   "dependencies": {

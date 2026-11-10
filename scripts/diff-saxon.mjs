@@ -58,11 +58,17 @@ function compile(nom, schPath) {
 }
 
 console.log("• Schematrons officiels (bruts)…");
+// CII
 fetchRec(EN16931, "cii/schematron/EN16931-CII-validation.sch", `${SRC}/en16931`);
 curl(`${FNFE}/FNFE_RFE_INVOICE/CII/EXTENDED-CTC-FR/schematron/BR-FR-Flux2-Schematron-CII.sch`, `${SRC}/fnfe-cii.sch`);
+// UBL
+fetchRec(EN16931, "ubl/schematron/EN16931-UBL-validation.sch", `${SRC}/en16931`);
+curl(`${FNFE}/FNFE_RFE_INVOICE/UBL/EXTENDED-CTC-FR/schematron/BR-FR-Flux2-Schematron-UBL.sch`, `${SRC}/fnfe-ubl.sch`);
 
 compile("en16931-cii", `${SRC}/en16931/cii/schematron/EN16931-CII-validation.sch`);
 compile("fnfe-cii", `${SRC}/fnfe-cii.sch`);
+compile("en16931-ubl", `${SRC}/en16931/ubl/schematron/EN16931-UBL-validation.sch`);
+compile("fnfe-ubl", `${SRC}/fnfe-ubl.sch`);
 
 console.log(
   "\nTerminé. Lancer le test différentiel :\n  SAXON_DIR=.saxon DIFF_CORPUS=fixtures-corpus npx vitest run differential.saxon",

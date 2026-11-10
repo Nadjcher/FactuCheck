@@ -131,16 +131,18 @@ seule à la conformité (PDF/A-3, XSD) : le rapport reste « Contrôle partiel �
 | Format | Parsing | Cas OK (conforme) | Cas KO (corpus) | Schematron officiel |
 |---|---|---|---|---|
 | **CII** | ✓ (\`engine.test.ts\`) | ${fmtCell("CII").ok} | ${fmtCell("CII").ko} | ✓ EN16931-CII + FNFE-CII (diff. Saxon : 0 écart) |
-| **UBL** | ✓ (\`engine.test.ts\` + corpus) | ${fmtCell("UBL").ok} | ${fmtCell("UBL").ko} | fonctions FNFE portées + testées ; schematron non rejoué en diff |
+| **UBL** | ✓ (\`engine.test.ts\` + corpus) | ${fmtCell("UBL").ok} | ${fmtCell("UBL").ko} | ✓ EN16931-UBL + FNFE-UBL (diff. Saxon : 0 écart) |
 | **Factur-X (PDF/A-3)** | extraction XML ✓ (\`facturx-pdf.test.ts\`) | ${fmtCell("FACTURX_PDF").ok} | ${fmtCell("FACTURX_PDF").ko} | s.o. (le XML embarqué suit le profil CII) |
 
 **Fixtures par format** : CII \`fixtures-corpus/*.xml\`, UBL \`fixtures-corpus/*UBL*.xml\`,
 Factur-X \`fixtures-corpus-pdf/*.pdf\` (générées par \`scripts/make-facturx-pdf.mjs\`).
 
-**Trous restants.** La validation **PDF/A-3 complète** (veraPDF : profil ICC, output
+Les schematrons officiels CII **et UBL** (EN 16931 + FNFE-MPE) sont rejoués dans le
+test différentiel Saxon avec **0 écart** (30 comparaisons).
+
+**Trou restant.** La validation **PDF/A-3 complète** (veraPDF : profil ICC, output
 intent, polices) reste hors moteur → FC-S02/FC-S06 \`exhaustif:false\`, verdict
-« Contrôle partiel ». Le **schematron officiel UBL** n'est pas encore rejoué dans le
-test différentiel Saxon (seul CII l'est).
+« Contrôle partiel ».
 
 ## Par profil
 

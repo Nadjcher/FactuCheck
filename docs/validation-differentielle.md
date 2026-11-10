@@ -28,23 +28,26 @@ Tout identifiant présent d'un côté et pas de l'autre est un **écart** — do
 
 ## Résultat
 
-Sur **EN 16931 (CII)** et **FNFE-MPE EXTENDED-CTC-FR (CII)**, appliqués à tout
-`fixtures-corpus/` (facture conforme + une invalide par règle) ainsi qu'aux
-factures d'exemple officielles du FNFE (UC13 valide + altérée) :
+Sur les **quatre** schematrons officiels — EN 16931 et FNFE-MPE EXTENDED-CTC-FR,
+en **CII et en UBL** — appliqués à tout `fixtures-corpus/` (chaque format avec sa
+facture conforme et ses factures invalides) :
 
 **0 écart** — les deux moteurs signalent exactement les mêmes règles sur chaque
-facture (22 comparaisons sur le corpus versionné, 26 avec les exemples officiels).
+facture (**30 comparaisons** : 22 CII + 8 UBL ; davantage avec les exemples
+officiels FNFE UC13).
 
-Le préprocesseur maison est donc **fidèle au moteur de référence** sur ce
-périmètre. Le test doit être rejoué à chaque évolution du préprocesseur ou mise à
-jour des schematrons officiels, et élargi au fur et à mesure (UBL, autres profils,
-davantage de factures).
+Chaque schematron ne s'applique qu'aux factures de son format (un schematron UBL
+n'est pas lancé sur du CII). Le préprocesseur maison est donc **fidèle au moteur de
+référence** sur CII comme sur UBL. Le test doit être rejoué à chaque évolution du
+préprocesseur ou mise à jour des schematrons officiels, et élargi au fur et à
+mesure (autres profils, davantage de factures).
 
 ## Rejouer
 
 ```bash
-npm run diff:setup   # télécharge Saxon + squelette ISO, compile les XSLT de référence (.saxon/)
-npm run diff:run     # compare les deux moteurs sur fixtures-corpus/
+npm run schematron:official  # schematrons officiels préprocessés (côté moteur)
+npm run diff:setup           # Saxon + squelette ISO, compile les XSLT CII+UBL de référence (.saxon/)
+npm run diff:run             # compare les deux moteurs sur fixtures-corpus/ (CII + UBL)
 ```
 
 Le test (`src/lib/engine/differential.saxon.test.ts`) s'ignore automatiquement si

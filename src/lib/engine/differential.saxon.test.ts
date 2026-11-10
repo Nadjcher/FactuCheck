@@ -19,9 +19,27 @@ const CORPUS = process.env.DIFF_CORPUS;
 const actif = Boolean(SAXON && CORPUS && fs.existsSync(SAXON) && fs.existsSync(CORPUS));
 
 const CIBLES = [
-  { nom: "FNFE-CII", fichierSch: "schematron/official/fnfe-cii.sch", xsl: "fnfe-cii-validation.xsl", format: "CII" as FormatFacture },
-  { nom: "EN16931-CII", fichierSch: "schematron/official/cii.sch", xsl: "en16931-cii-validation.xsl", format: "CII" as FormatFacture },
+  { nom: "FNFE-CII", fichierSch: "schematron/official/fnfe-cii.sch", xsl: "fnfe-cii-validation.xsl", format: "CII" as FormatFacture, base: "cii" },
+  { nom: "EN16931-CII", fichierSch: "schematron/official/cii.sch", xsl: "en16931-cii-validation.xsl", format: "CII" as FormatFacture, base: "cii" },
+  { nom: "FNFE-UBL", fichierSch: "schematron/official/fnfe-ubl.sch", xsl: "fnfe-ubl-validation.xsl", format: "UBL" as FormatFacture, base: "ubl" },
+  { nom: "EN16931-UBL", fichierSch: "schematron/official/ubl.sch", xsl: "en16931-ubl-validation.xsl", format: "UBL" as FormatFacture, base: "ubl" },
 ];
+
+/** Classe une facture du corpus (cii|ubl) via le manifeste, sinon par son nom. */
+function baseDe(dir: string, fichier: string): "cii" | "ubl" | null {
+  try {
+    const man = JSON.parse(fs.readFileSync(path.join(dir, "manifest.json"), "utf8")) as Array<{
+      fichier: string;
+      format?: string;
+    }>;
+    const e = man.find((m) => m.fichier === fichier);
+    if (e?.format === "UBL") return "ubl";
+    if (e?.format === "CII") return "cii";
+  } catch {
+    /* pas de manifeste : repli sur le nom */
+  }
+  return /ubl/i.test(fichier) ? "ubl" : "cii";
+}
 
 /** Identifiants des assertions signalées (failed-assert + successful-report) dans le SVRL. */
 function idsSvrl(svrl: string): Set<string> {
@@ -54,9 +72,11 @@ if (!actif) {
   });
 } else {
   describe("différentiel Saxon ↔ node-schematron", () => {
-    const factures = fs.readdirSync(CORPUS as string).filter((f) => f.endsWith(".xml"));
+    const toutes = fs.readdirSync(CORPUS as string).filter((f) => f.endsWith(".xml"));
 
     for (const cible of CIBLES) {
+      // Un schematron UBL ne s'applique qu'aux factures UBL (et vice-versa).
+      const factures = toutes.filter((f) => baseDe(CORPUS as string, f) === cible.base);
       for (const facture of factures) {
         it(`${cible.nom} / ${facture} : mêmes règles signalées`, async () => {
           const chemin = path.join(CORPUS as string, facture);
