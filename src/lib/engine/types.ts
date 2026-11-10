@@ -44,6 +44,8 @@ export interface RuleDefinition {
   source: string | null;
   /** `true` tant que la source n'est pas confirmée → badge « À VÉRIFIER ». */
   aVerifier: boolean;
+  /** Identifiant de la règle correspondante dans la spécification (FC-…). */
+  specId?: string | null;
   messageOk: string;
   commentCorriger: string;
   infobulle: string;
@@ -112,6 +114,8 @@ export interface Finding {
   infobulle: string;
   source: string | null;
   aVerifier: boolean;
+  /** Identifiant de la règle correspondante dans la spécification (FC-…). */
+  specId?: string | null;
   origine: OrigineFinding;
 }
 

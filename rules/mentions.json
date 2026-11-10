@@ -4,6 +4,7 @@
   "regles": [
     {
       "id": "MEN-001",
+      "specId": "FC-M04",
       "libelle": "SIREN de l'émetteur présent",
       "categorie": "mentions",
       "severite": "bloquant",
@@ -15,6 +16,7 @@
     },
     {
       "id": "MEN-002",
+      "specId": "FC-M07",
       "libelle": "SIREN du client présent",
       "categorie": "mentions",
       "severite": "bloquant",
@@ -26,6 +28,7 @@
     },
     {
       "id": "MEN-003",
+      "specId": "FC-M05",
       "libelle": "Numéro de TVA intracommunautaire de l'émetteur",
       "categorie": "mentions",
       "severite": "avertissement",
@@ -37,6 +40,7 @@
     },
     {
       "id": "MEN-004",
+      "specId": "FC-M08",
       "libelle": "Adresse de livraison (si différente de la facturation)",
       "categorie": "mentions",
       "severite": "avertissement",
@@ -48,6 +52,7 @@
     },
     {
       "id": "MEN-005",
+      "specId": "FC-M09",
       "libelle": "Catégorie de l'opération (LB / PS / LBPS)",
       "categorie": "mentions",
       "severite": "avertissement",
@@ -59,6 +64,7 @@
     },
     {
       "id": "MEN-006",
+      "specId": "FC-M11",
       "libelle": "Référence d'exonération de TVA (si applicable)",
       "categorie": "mentions",
       "severite": "avertissement",
@@ -70,6 +76,7 @@
     },
     {
       "id": "MEN-007",
+      "specId": "FC-M10",
       "libelle": "Code d'exigibilité de la TVA — option « sur les débits » (BT-8)",
       "categorie": "mentions",
       "severite": "avertissement",

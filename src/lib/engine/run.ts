@@ -70,6 +70,7 @@ export function evaluer(inv: ParsedInvoice): Report {
       infobulle: regle.infobulle,
       source: regle.source,
       aVerifier: regle.aVerifier,
+      specId: regle.specId ?? null,
       origine: "moteur",
     });
   }

@@ -4,6 +4,7 @@
   "regles": [
     {
       "id": "MNT-001",
+      "specId": "FC-C05",
       "libelle": "Cohérence HT + TVA = TTC (BR-CO-15)",
       "categorie": "montants",
       "severite": "bloquant",

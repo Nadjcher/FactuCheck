@@ -158,6 +158,14 @@ export function RapportVue({ nom, report }: { nom: string; report: Report }) {
                       <span className="rounded border border-border bg-muted/50 px-1.5 py-0.5 font-mono text-[11px]">
                         {f.ruleId}
                       </span>
+                      {f.specId && (
+                        <span
+                          className="rounded border border-border bg-muted/50 px-1.5 py-0.5 font-mono text-[11px]"
+                          title="Identifiant dans la spécification"
+                        >
+                          {f.specId}
+                        </span>
+                      )}
                       <span>
                         {dict.commun.source}&nbsp;:{" "}
                         {f.source ?? <span className="italic">non renseignée</span>}

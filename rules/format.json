@@ -4,6 +4,7 @@
   "regles": [
     {
       "id": "FMT-001",
+      "specId": "FC-S01",
       "libelle": "Format de facture électronique reconnu",
       "categorie": "format",
       "severite": "bloquant",
@@ -26,6 +27,7 @@
     },
     {
       "id": "FMT-003",
+      "specId": "FC-S05",
       "libelle": "Profil accepté par les plateformes",
       "categorie": "format",
       "severite": "bloquant",

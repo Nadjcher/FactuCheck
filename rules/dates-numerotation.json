@@ -4,6 +4,7 @@
   "regles": [
     {
       "id": "DAT-001",
+      "specId": "FC-M02",
       "libelle": "Date d'émission présente",
       "categorie": "dates",
       "severite": "bloquant",
@@ -15,6 +16,7 @@
     },
     {
       "id": "DAT-002",
+      "specId": "FC-M02",
       "libelle": "Date d'émission valide",
       "categorie": "dates",
       "severite": "avertissement",
@@ -26,6 +28,7 @@
     },
     {
       "id": "NUM-001",
+      "specId": "FC-M01",
       "libelle": "Numéro de facture présent",
       "categorie": "numerotation",
       "severite": "bloquant",
@@ -37,6 +40,7 @@
     },
     {
       "id": "NUM-002",
+      "specId": "FC-M01",
       "libelle": "Numéro de facture non vide et exploitable",
       "categorie": "numerotation",
       "severite": "avertissement",

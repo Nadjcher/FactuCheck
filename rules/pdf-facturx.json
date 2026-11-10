@@ -4,6 +4,7 @@
   "regles": [
     {
       "id": "PDF-001",
+      "specId": "FC-S02",
       "libelle": "Conformité PDF/A-3",
       "categorie": "pdf",
       "severite": "bloquant",
@@ -26,6 +27,7 @@
     },
     {
       "id": "PDF-003",
+      "specId": "FC-S03",
       "libelle": "XML embarqué nommé factur-x.xml",
       "categorie": "pdf",
       "severite": "avertissement",
@@ -37,6 +39,7 @@
     },
     {
       "id": "PDF-004",
+      "specId": "FC-S04",
       "libelle": "Métadonnées XMP cohérentes",
       "categorie": "pdf",
       "severite": "avertissement",
