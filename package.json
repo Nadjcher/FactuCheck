@@ -12,7 +12,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "schematron:official": "node scripts/fetch-official-schematron.mjs"
+    "schematron:official": "node scripts/fetch-official-schematron.mjs",
+    "corpus:generate": "node scripts/generate-corpus.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",

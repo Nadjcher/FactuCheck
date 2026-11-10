@@ -1,0 +1,51 @@
+[
+  {
+    "fichier": "OK_CII_conforme.xml",
+    "conforme": true
+  },
+  {
+    "fichier": "KO_FC-M07_siren-client.xml",
+    "ruleId": "MEN-002",
+    "specId": "FC-M07"
+  },
+  {
+    "fichier": "KO_FC-M04_siren-cle.xml",
+    "ruleId": "MEN-001",
+    "specId": "FC-M04"
+  },
+  {
+    "fichier": "KO_FC-C05_ttc.xml",
+    "ruleId": "MNT-001",
+    "specId": "FC-C05"
+  },
+  {
+    "fichier": "KO_FC-M02_date.xml",
+    "ruleId": "DAT-001",
+    "specId": "FC-M02"
+  },
+  {
+    "fichier": "KO_FC-M01_numero.xml",
+    "ruleId": "NUM-001",
+    "specId": "FC-M01"
+  },
+  {
+    "fichier": "KO_FC-M14_paiement.xml",
+    "ruleId": "MEN-008",
+    "specId": "FC-M14"
+  },
+  {
+    "fichier": "KO_FC-S05_profil.xml",
+    "ruleId": "FMT-003",
+    "specId": "FC-S05"
+  },
+  {
+    "fichier": "KO_FC-M13_ligne-incomplete.xml",
+    "ruleId": "MEN-010",
+    "specId": "FC-M13"
+  },
+  {
+    "fichier": "KO_FC-C01_net-ligne.xml",
+    "ruleId": "MNT-005",
+    "specId": "FC-C01"
+  }
+]
