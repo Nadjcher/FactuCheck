@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { analyserFichier } from "@/lib/engine";
+import { analyserFichierComplet } from "@/lib/engine";
 
 export const runtime = "nodejs";
 
@@ -38,7 +38,7 @@ export async function POST(req: Request) {
     }
     const bytes = Buffer.from(await f.arrayBuffer());
     try {
-      const { report } = analyserFichier({ nom: f.name, bytes });
+      const { report } = await analyserFichierComplet({ nom: f.name, bytes });
       resultats.push({ nom: f.name, report });
     } catch (e) {
       resultats.push({

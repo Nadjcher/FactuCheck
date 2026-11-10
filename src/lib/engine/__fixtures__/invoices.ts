@@ -114,6 +114,42 @@ export const UBL_VALIDE = `<?xml version="1.0" encoding="UTF-8"?>
   </cac:LegalMonetaryTotal>
 </Invoice>`;
 
+// CII avec lignes dont la somme (400 + 300 = 700) ne correspond pas au total
+// des lignes déclaré (1000). Déclenche BR-CO-10 côté Schematron.
+export const CII_LIGNES_INCOHERENTES = `<?xml version="1.0" encoding="UTF-8"?>
+<rsm:CrossIndustryInvoice
+  xmlns:rsm="urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100"
+  xmlns:ram="urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100">
+  <rsm:SupplyChainTradeTransaction>
+    <ram:IncludedSupplyChainTradeLineItem>
+      <ram:SpecifiedLineTradeSettlement><ram:SpecifiedTradeSettlementLineMonetarySummation>
+        <ram:LineTotalAmount>400.00</ram:LineTotalAmount>
+      </ram:SpecifiedTradeSettlementLineMonetarySummation></ram:SpecifiedLineTradeSettlement>
+    </ram:IncludedSupplyChainTradeLineItem>
+    <ram:IncludedSupplyChainTradeLineItem>
+      <ram:SpecifiedLineTradeSettlement><ram:SpecifiedTradeSettlementLineMonetarySummation>
+        <ram:LineTotalAmount>300.00</ram:LineTotalAmount>
+      </ram:SpecifiedTradeSettlementLineMonetarySummation></ram:SpecifiedLineTradeSettlement>
+    </ram:IncludedSupplyChainTradeLineItem>
+    <ram:ApplicableHeaderTradeAgreement>
+      <ram:SellerTradeParty>
+        <ram:SpecifiedLegalOrganization><ram:ID>123456782</ram:ID></ram:SpecifiedLegalOrganization>
+      </ram:SellerTradeParty>
+      <ram:BuyerTradeParty>
+        <ram:SpecifiedLegalOrganization><ram:ID>987654329</ram:ID></ram:SpecifiedLegalOrganization>
+      </ram:BuyerTradeParty>
+    </ram:ApplicableHeaderTradeAgreement>
+    <ram:ApplicableHeaderTradeSettlement>
+      <ram:SpecifiedTradeSettlementHeaderMonetarySummation>
+        <ram:LineTotalAmount>1000.00</ram:LineTotalAmount>
+        <ram:TaxBasisTotalAmount>1000.00</ram:TaxBasisTotalAmount>
+        <ram:TaxTotalAmount>200.00</ram:TaxTotalAmount>
+        <ram:GrandTotalAmount>1200.00</ram:GrandTotalAmount>
+      </ram:SpecifiedTradeSettlementHeaderMonetarySummation>
+    </ram:ApplicableHeaderTradeSettlement>
+  </rsm:SupplyChainTradeTransaction>
+</rsm:CrossIndustryInvoice>`;
+
 export function toBuffer(xml: string): Buffer {
   return Buffer.from(xml, "utf8");
 }

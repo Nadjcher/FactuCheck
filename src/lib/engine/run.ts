@@ -10,6 +10,7 @@ import type {
 import { checks } from "./checks";
 import { REGLES } from "./rules-loader";
 import { parseInvoice, type EntreeFichier } from "./parse";
+import { validerSchematron } from "./schematron";
 
 const POIDS: Record<Severite, number> = { bloquant: 3, avertissement: 1 };
 
@@ -69,6 +70,7 @@ export function evaluer(inv: ParsedInvoice): Report {
       infobulle: regle.infobulle,
       source: regle.source,
       aVerifier: regle.aVerifier,
+      origine: "moteur",
     });
   }
 
@@ -88,11 +90,27 @@ export function evaluer(inv: ParsedInvoice): Report {
   };
 }
 
-/** Pipeline complet depuis un fichier brut. */
+/** Pipeline synchrone (moteur métier uniquement). */
 export function analyserFichier(fichier: EntreeFichier): {
   parsed: ParsedInvoice;
   report: Report;
 } {
   const parsed = parseInvoice(fichier);
   return { parsed, report: evaluer(parsed) };
+}
+
+/**
+ * Pipeline complet : moteur métier + validation Schematron (contrôles officiels).
+ * La conformité globale intègre les bloquants Schematron.
+ */
+export async function analyserFichierComplet(fichier: EntreeFichier): Promise<{
+  parsed: ParsedInvoice;
+  report: Report;
+}> {
+  const parsed = parseInvoice(fichier);
+  const report = evaluer(parsed);
+  const schematron = await validerSchematron(parsed.xmlSource, parsed.format);
+  report.schematron = schematron;
+  if (schematron.bloquants > 0) report.conforme = false;
+  return { parsed, report };
 }

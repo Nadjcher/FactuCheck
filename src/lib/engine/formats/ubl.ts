@@ -28,7 +28,7 @@ function parseParty(party: unknown): Partie {
 
 export function parseUBL(
   root: Record<string, unknown>,
-): Omit<ParsedInvoice, "pdf" | "erreurParsing"> {
+): Omit<ParsedInvoice, "pdf" | "xmlSource" | "erreurParsing"> {
   const inv = get(root, "Invoice") ?? get(root, "CreditNote");
 
   const supplier = get(inv, "AccountingSupplierParty.Party");

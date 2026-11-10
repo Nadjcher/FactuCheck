@@ -79,6 +79,8 @@ export interface ParsedInvoice {
   montantTVA: number | null;
   montantTTC: number | null;
   pdf: PdfMeta;
+  /** XML brut utilisé (pour la validation Schematron) ; null si indisponible. */
+  xmlSource: string | null;
   /** Erreur de parsing éventuelle (fichier illisible, XML invalide...). */
   erreurParsing: string | null;
 }
@@ -94,6 +96,9 @@ export interface CheckResult {
 /** Fonction de contrôle associée à une règle par son id. */
 export type CheckFn = (inv: ParsedInvoice) => CheckResult;
 
+/** Origine d'un résultat : moteur « métier » interne ou validation Schematron. */
+export type OrigineFinding = "moteur" | "schematron";
+
 /** Ligne de résultat pour une règle dans le rapport final. */
 export interface Finding {
   ruleId: string;
@@ -105,6 +110,17 @@ export interface Finding {
   infobulle: string;
   source: string | null;
   aVerifier: boolean;
+  origine: OrigineFinding;
+}
+
+/** Résultat de la validation Schematron (contrôles officiels). */
+export interface SchematronResultat {
+  execute: boolean; // la validation a-t-elle pu s'exécuter ?
+  moteur: string; // ex. "node-schematron"
+  source: string; // ex. "FactuCheck CII (maison)" ou "EN16931-CII (officiel)"
+  findings: Finding[]; // uniquement les anomalies (asserts en échec / reports)
+  bloquants: number;
+  note: string | null; // diagnostic (ex. aucun schematron pour ce format)
 }
 
 export interface ReportCounts {
@@ -125,5 +141,7 @@ export interface Report {
   /** Vrai si au moins une règle évaluée est encore « À VÉRIFIER ». */
   contientReglesAVerifier: boolean;
   erreurParsing: string | null;
+  /** Résultat de la validation Schematron, si exécutée. */
+  schematron?: SchematronResultat;
   genereLe: string; // ISO
 }

@@ -51,6 +51,8 @@ facture, le rapport et l'export PDF fonctionnent entièrement, sans compte.
 
 - **Next.js 14 (App Router) + TypeScript + Tailwind** — UI, i18n (fr), thème clair/sombre
 - **Moteur de règles** — `src/lib/engine/*`, isolé de l'UI et de la base, 100 % testable
+- **Validation Schematron** — `node-schematron` (pur JS), par-dessus le moteur métier
+  (voir `schematron/README.md`), avec contrôles au niveau ligne (BR-CO-10/13)
 - **Supabase** — auth, Postgres (RLS), stockage (voir `supabase/schema.sql`)
 - **Stripe** — abonnements (Gratuit / Pro / Cabinet)
 - **Analyse PDF & XML côté serveur** — route `POST /api/analyser`
@@ -83,8 +85,13 @@ Catalogue déclaratif : `rules/format.json`, `pdf-facturx.json`, `mentions.json`
 ## État d'avancement
 
 ### ✅ Fait (fonctionnel)
-- Moteur de règles complet + **15 tests unitaires** (factures valides/invalides)
-- Catalogue `rules/*.json` (squelette sourcé, tout « À VÉRIFIER »)
+- Moteur de règles complet + **23 tests unitaires** (factures valides/invalides)
+- Catalogue `rules/*.json` **sourcé** (EN 16931, Factur-X FNFE-MPE, CGI, LF 2026),
+  marqué « À VÉRIFIER » en attente de validation experte
+- **Validation Schematron** branchée (CII + UBL) : exécute les `.sch` maison
+  (sourcés) ou les artefacts officiels déposés dans `schematron/official/`, avec
+  les contrôles de calcul **au niveau ligne** (BR-CO-10/13) ; intégrée au score
+  et à la conformité, affichée dans le rapport
 - Page **Tester une facture** : glisser-déposer, lot, **sans compte**, barre de
   progression, **facture d'exemple**
 - **Rapport détaillé** : score /100, erreurs en langage simple, « comment corriger »,
@@ -99,7 +106,8 @@ Catalogue déclaratif : `rules/format.json`, `pdf-facturx.json`, `mentions.json`
 - **3 tests e2e** Playwright (landing, test d'une facture, recherche historique)
 
 ### 🔜 Reste à faire (avant production)
-- **Renseigner et vérifier les sources réglementaires** de chaque règle (priorité n°1)
+- **Faire valider les règles par un expert-comptable** et **déposer les schematrons
+  officiels** (EN 16931 / FNFE-MPE) dans `schematron/official/` (priorité n°1)
 - Brancher l'écriture réelle en base (Supabase) : persistance factures/rapports,
   quotas, journal d'audit, purge automatique via tâche planifiée
 - Finaliser Stripe (prix réels, mise à jour `subscriptions` sur webhook)
@@ -112,9 +120,10 @@ Catalogue déclaratif : `rules/format.json`, `pdf-facturx.json`, `mentions.json`
 ## Structure
 
 ```
-rules/                 catalogue de règles (déclaratif, sourcé)
+rules/                 catalogue de règles (déclaratif, sourcé) + REGLEMENTATION.md
+schematron/            schematrons maison (.sch) + official/ (artefacts officiels)
 src/
-  lib/engine/          moteur : parse, checks, scoring, formats (UBL/CII/PDF)
+  lib/engine/          moteur : parse, checks, scoring, schematron, formats (UBL/CII/PDF)
   lib/i18n/            textes (fr ; en à ajouter)
   lib/supabase, stripe intégrations (dégradation gracieuse)
   components/          UI (ui/, rapport/, tester/, app/)

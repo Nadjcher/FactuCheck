@@ -45,13 +45,18 @@
 | DAT-001/002 | Date d'émission présente/valide (BT-2) | bloquant/avert. |
 | NUM-001/002 | Numéro présent / exploitable (BT-1) | bloquant/avert. |
 
-### À coder (backlog — nécessite d'extraire les lignes de facture)
-- **BR-CO-10** : somme des lignes = total des lignes.
-- **BR-CO-13** : Total HT = lignes − remises + frais.
+### Via Schematron (voir `schematron/`) — déjà en place
+- **BR-CO-10** : total des lignes = somme des montants nets de chaque ligne. ✅ (CII/UBL)
+- **BR-CO-13** : Total HT = lignes − remises + frais. ✅ (CII)
+- **BR-CO-15** : TTC = HT + TVA. ✅ (CII/UBL)
+- **BR-FR-CTC-01** : SIREN du client obligatoire. ✅ (CII/UBL)
+
+### Backlog restant
 - **TVA par taux** = base × taux, arrondie à 2 décimales ; EXTENDED-CTC-FR tolère
   1 centime d'écart **par ligne**.
 - **Option TVA sur les débits** (BT-8) si applicable.
 - Contrôle fin des **nouvelles mentions** au niveau ligne/TVA.
+- **Déposer les schematrons officiels** (EN 16931 / FNFE-MPE) dans `schematron/official/`.
 
 ## 4. Cycle de vie (XP Z12-012) — hors contrôle fichier, à modéliser
 
@@ -66,16 +71,19 @@
 Couvre B2C, international, données de paiement. Périodicité selon le régime de TVA :
 décade (réel normal mensuel), mensuel (simplifié), bimestriel (franchise).
 
-## 6. Recommandation d'architecture — brancher les schematrons officiels
+## 6. Architecture Schematron — EN PLACE
 
-Plutôt que de recoder toutes les règles EN 16931 / BR-France CTC, **intégrer les
-schematrons du FNFE-MPE** (contrôles officiels, publics, gratuits, mis à jour) :
-- Exécuter la validation Schematron (XSLT) sur le XML extrait, en complément des
+Le moteur Schematron est **intégré** (`node-schematron`, pur JS ; voir
+`schematron/README.md` et `src/lib/engine/schematron.ts`) :
+- La validation Schematron s'exécute sur le XML extrait, **en complément** des
   contrôles « métier » et pédagogiques de FactuCheck.
-- Mapper chaque assertion Schematron échouée vers un `Finding` (message en langage
-  clair + « comment corriger »).
-- Conserver nos règles à forte valeur UX (FMT-003 profil accepté, explications,
-  score) par-dessus la validation officielle.
+- Chaque assertion échouée est mappée vers un `Finding` (sévérité lue du `flag`),
+  affiché dans une section dédiée du rapport, et intégré à la conformité globale.
+- Nos règles à forte valeur UX (FMT-003 profil accepté, explications, score) sont
+  conservées par-dessus.
+- **Reste à faire** : déposer les schematrons **officiels** (EN 16931 / FNFE-MPE)
+  dans `schematron/official/` — ils deviennent alors prioritaires et « non à vérifier ».
+  Les `.sch` maison fournis couvrent déjà BR-CO-10/13/15 et le SIREN client.
 
 ## 7. Sources
 

@@ -1,4 +1,4 @@
-import { AlertCircle, Wrench } from "lucide-react";
+import { AlertCircle, Wrench, CheckCircle2, FileCheck2 } from "lucide-react";
 import type { Categorie, Report } from "@/lib/engine/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -67,6 +67,43 @@ export function RapportVue({ nom, report }: { nom: string; report: Report }) {
           </p>
           <p className="mt-1 text-muted-foreground">{dict.legal.avertissementRegles}</p>
         </div>
+      )}
+
+      {/* Contrôles officiels (Schematron) */}
+      {report.schematron && (
+        <section className="print-break-avoid">
+          <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+            <FileCheck2 className="h-4 w-4" aria-hidden="true" />
+            Contrôles officiels (Schematron)
+          </h3>
+          {!report.schematron.execute ? (
+            <p className="rounded-md border border-border bg-muted/40 p-3 text-sm text-muted-foreground">
+              Non exécutés : {report.schematron.note}
+            </p>
+          ) : report.schematron.findings.length === 0 ? (
+            <div className="flex items-center gap-2 rounded-md border border-success/40 bg-success-soft p-3 text-sm text-success">
+              <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+              Aucune anomalie détectée. Source : {report.schematron.source}.
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <p className="text-xs text-muted-foreground">
+                Source : {report.schematron.source}
+              </p>
+              {report.schematron.findings.map((f, i) => (
+                <Card key={`${f.ruleId}-${i}`} className="print-break-avoid">
+                  <CardContent className="p-4">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="font-mono text-sm font-medium">{f.ruleId}</span>
+                      <StatutBadge statut={f.statut} />
+                    </div>
+                    <p className="mt-1 text-sm text-muted-foreground">{f.message}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </section>
       )}
 
       {/* Contrôles par catégorie */}

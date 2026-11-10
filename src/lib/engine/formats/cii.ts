@@ -52,7 +52,7 @@ function detectProfil(urn: string | null): ProfilFacturx {
 export function parseCII(
   root: Record<string, unknown>,
   formatPdf: boolean,
-): Omit<ParsedInvoice, "pdf" | "erreurParsing"> {
+): Omit<ParsedInvoice, "pdf" | "xmlSource" | "erreurParsing"> {
   const inv = get(root, "CrossIndustryInvoice");
   const ctxUrn = textAt(
     inv,

@@ -16,6 +16,7 @@ const PDF_META_VIDE: PdfMeta = {
 function invoiceVide(
   erreur: string,
   pdf: PdfMeta = PDF_META_VIDE,
+  xmlSource: string | null = null,
 ): ParsedInvoice {
   return {
     format: "INCONNU",
@@ -30,6 +31,7 @@ function invoiceVide(
     montantTVA: null,
     montantTTC: null,
     pdf,
+    xmlSource,
     erreurParsing: erreur,
   };
 }
@@ -53,15 +55,17 @@ function parseXmlString(xml: string, pdf: PdfMeta): ParsedInvoice {
     return {
       ...parseCII(root, pdf.estPdf),
       pdf,
+      xmlSource: xml,
       erreurParsing: null,
     };
   }
   if (isUBL) {
-    return { ...parseUBL(root), pdf, erreurParsing: null };
+    return { ...parseUBL(root), pdf, xmlSource: xml, erreurParsing: null };
   }
   return invoiceVide(
     "Racine XML non reconnue (ni CrossIndustryInvoice, ni Invoice/CreditNote).",
     pdf,
+    xml,
   );
 }
 
