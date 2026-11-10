@@ -25,6 +25,9 @@ next-env.d.ts
 /schematron/official/*
 !/schematron/official/.gitkeep
 
+# moteur de référence du test différentiel (Saxon, téléchargé)
+/.saxon/
+
 # misc
 .DS_Store
 *.pem

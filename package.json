@@ -13,7 +13,9 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "schematron:official": "node scripts/fetch-official-schematron.mjs",
-    "corpus:generate": "node scripts/generate-corpus.mjs"
+    "corpus:generate": "node scripts/generate-corpus.mjs",
+    "diff:setup": "node scripts/diff-saxon.mjs",
+    "diff:run": "SAXON_DIR=.saxon DIFF_CORPUS=fixtures-corpus vitest run differential.saxon"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",
