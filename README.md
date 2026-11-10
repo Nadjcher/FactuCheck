@@ -85,16 +85,18 @@ Catalogue déclaratif : `rules/format.json`, `pdf-facturx.json`, `mentions.json`
 ## État d'avancement
 
 ### ✅ Fait (fonctionnel)
-- Moteur de règles complet + **26 tests unitaires** (factures valides/invalides)
+- Moteur de règles complet + **33 tests unitaires** (factures valides/invalides)
 - Catalogue `rules/*.json` **sourcé** (EN 16931, Factur-X FNFE-MPE, CGI, LF 2026),
   marqué « À VÉRIFIER » en attente de validation experte ; inclut le **BT-8**
   (code d'exigibilité de la TVA, option « sur les débits »)
 - **Validation Schematron** branchée (CII + UBL) : exécute les `.sch` maison
-  (sourcés) ou les **artefacts officiels EN 16931** (`npm run schematron:official`
-  les télécharge, résout les includes et développe les patterns abstraits), avec
-  les contrôles de calcul **au niveau ligne et par taux** (BR-CO-10/13/15/17) ;
-  intégrée au score et à la conformité, affichée dans le rapport. La facture
-  d'exemple passe la validation **officielle** EN 16931 CII sans anomalie
+  (sourcés) ou les **artefacts officiels** — **EN 16931** et **FNFE-MPE
+  EXTENDED-CTC-FR** — via `npm run schematron:official` (téléchargement, résolution
+  des includes, développement des patterns abstraits, portage des fonctions XSLT
+  `custom:*` en JS et réécriture des `<let>`). Contrôles de calcul au niveau ligne
+  et par taux (BR-CO-10/13/15/17) + règles françaises BR-FR ; intégrés au score et
+  à la conformité. Vérifié : les factures d'exemple officielles FNFE passent sans
+  bloquant
 - Page **Tester une facture** : glisser-déposer, lot, **sans compte**, barre de
   progression, **facture d'exemple**
 - **Rapport détaillé** : score /100, erreurs en langage simple, « comment corriger »,
@@ -109,8 +111,8 @@ Catalogue déclaratif : `rules/format.json`, `pdf-facturx.json`, `mentions.json`
 - **3 tests e2e** Playwright (landing, test d'une facture, recherche historique)
 
 ### 🔜 Reste à faire (avant production)
-- **Faire valider les règles par un expert-comptable** ; brancher aussi les
-  schematrons **FNFE-MPE** (EXTENDED-CTC-FR) via le même préprocesseur (priorité n°1)
+- **Faire valider l'ensemble par un expert-comptable** et suivre les mises à jour
+  des schematrons officiels (EN 16931 et FNFE-MPE) — priorité n°1
 - Brancher l'écriture réelle en base (Supabase) : persistance factures/rapports,
   quotas, journal d'audit, purge automatique via tâche planifiée
 - Finaliser Stripe (prix réels, mise à jour `subscriptions` sur webhook)

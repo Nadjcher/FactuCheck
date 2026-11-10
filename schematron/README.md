@@ -9,15 +9,21 @@ FactuCheck exécute une validation **Schematron** sur le XML de la facture
 
 | Fichier | Rôle |
 |---|---|
-| `factucheck-cii.sch` | Schematron **maison** pour CII/Factur-X (sous-ensemble sourcé, « à vérifier »). |
-| `factucheck-ubl.sch` | Schematron **maison** pour UBL. |
-| `official/cii.sch` | *(optionnel)* Schematron **officiel** CII — **prioritaire** s'il est présent. |
-| `official/ubl.sch` | *(optionnel)* Schematron **officiel** UBL — **prioritaire** s'il est présent. |
+| `factucheck-cii.sch` / `factucheck-ubl.sch` | Schematrons **maison** (sous-ensemble sourcé, « à vérifier »). |
+| `official/cii.sch` / `official/ubl.sch` | **EN 16931** officiel (ConnectingEurope) — prioritaire. |
+| `official/fnfe-cii.sch` / `official/fnfe-ubl.sch` | **BR-FR FNFE-MPE** (EXTENDED-CTC-FR) — exécuté **en plus** de l'EN 16931. |
 
-La résolution est automatique : pour une facture CII/Factur-X, `official/cii.sch`
-est utilisé s'il existe, sinon `factucheck-cii.sch`. Idem UBL. Le rapport indique
-toujours la **source** utilisée et marque « À VÉRIFIER » tant que le schematron
-n'est pas officiel.
+Résolution automatique par format : si des `official/*.sch` existent, **tous**
+ceux du format sont appliqués (EN 16931 **et** FNFE-MPE) et leurs anomalies
+cumulées ; sinon le schematron maison. Le rapport indique la **source** utilisée
+et marque « À VÉRIFIER » uniquement pour les schematrons maison.
+
+Deux obstacles techniques propres à `node-schematron` sont levés automatiquement
+au chargement (`src/lib/engine/schematron-transform.ts`) :
+- les **fonctions XSLT** `custom:*` du FNFE sont portées en JS et enregistrées
+  dans fontoxpath (`src/lib/engine/schematron-functions.ts`) ;
+- les **`<let>`** (que node-schematron atomise à tort) sont réécrits en
+  expressions `let … return` XPath natives.
 
 ## Ce que les schematrons maison apportent déjà
 
@@ -39,17 +45,19 @@ développe les patterns abstraits** (`is-a`/`param`) pour produire des `.sch`
 autonomes exécutables, puis les dépose dans `schematron/official/` :
 
 ```bash
-npm run schematron:official          # branche master
-npm run schematron:official -- v1.3.14.1   # une version précise (tag)
+npm run schematron:official          # EN 16931 (master) + FNFE-MPE EXTENDED-CTC-FR
+npm run schematron:official -- v1.3.14.1   # fige la version EN 16931 (tag)
 ```
 
-Redémarrez ensuite l'application : `schematron/official/cii.sch` et `ubl.sch`
-deviennent **prioritaires** et sont marqués source **officielle** (plus
-« À VÉRIFIER »).
+Le script télécharge **EN 16931** (CII + UBL, `ConnectingEurope/eInvoicing-EN16931`,
+EUPL) **et** les schematrons **FNFE-MPE** EXTENDED-CTC-FR (CII + UBL,
+`fnfempe/France_RFE`, EUPL), puis les écrit dans `schematron/official/`.
+Redémarrez ensuite l'application.
 
-> Vérifié : les schematrons officiels EN 16931 CII et UBL s'exécutent de bout en
-> bout via `node-schematron` après ce préprocessing, et la facture d'exemple
-> fournie passe la validation officielle CII sans anomalie.
+> Vérifié de bout en bout via `node-schematron` : EN 16931 CII/UBL et FNFE-MPE
+> EXTENDED-CTC-FR CII/UBL s'exécutent ; les factures d'exemple **officielles**
+> valides du FNFE passent sans anomalie bloquante, et une facture altérée
+> déclenche bien la règle BR-FR correspondante.
 
 Les scripts : `scripts/fetch-official-schematron.mjs` (téléchargement) et
 `scripts/preprocess-schematron.mjs` (includes + expansion abstraite, réutilisable

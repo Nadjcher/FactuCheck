@@ -1,36 +1,48 @@
 // Validation Schematron (contrôles officiels) via node-schematron (pur JS).
-// Exécute n'importe quel .sch : les schematrons maison (schematron/factucheck-*.sch)
-// ou les artefacts officiels déposés dans schematron/official/ (prioritaires).
+// Exécute, par format, le(s) schematron(s) présent(s) :
+//   - schematron/official/{cii,ubl}.sch      → EN 16931 (ConnectingEurope)
+//   - schematron/official/fnfe-{cii,ubl}.sch → BR-FR FNFE-MPE (EXTENDED-CTC-FR)
+//   - sinon schematron/factucheck-{cii,ubl}.sch (maison, sourcés, « à vérifier »)
+// Les .sch sont transformés au chargement (transformerSchematron) pour être
+// exécutables par node-schematron, et les fonctions custom:* FNFE sont
+// enregistrées dans fontoxpath.
 import fs from "node:fs";
 import path from "node:path";
 import { XMLParser } from "fast-xml-parser";
-import type {
-  Categorie,
-  FormatFacture,
-  Finding,
-  SchematronResultat,
-} from "./types";
+import type { Categorie, FormatFacture, Finding, SchematronResultat } from "./types";
+import { transformerSchematron } from "./schematron-transform";
+import { registerFnfeFunctions } from "./schematron-functions";
 
 const DOSSIER = path.join(process.cwd(), "schematron");
 
-interface SchFichier {
+interface SchInfo {
   chemin: string;
   officiel: boolean;
+  libelle: string;
 }
 
-/** Choisit le schematron pour un format : officiel prioritaire, sinon maison. */
-function choisirSch(format: FormatFacture): SchFichier | null {
-  const base =
-    format === "UBL" ? "ubl" : format === "CII" || format === "FACTURX_PDF" ? "cii" : null;
-  if (!base) return null;
-  const officiel = path.join(DOSSIER, "official", `${base}.sch`);
-  if (fs.existsSync(officiel)) return { chemin: officiel, officiel: true };
-  const maison = path.join(DOSSIER, `factucheck-${base}.sch`);
-  if (fs.existsSync(maison)) return { chemin: maison, officiel: false };
+function baseFormat(format: FormatFacture): "cii" | "ubl" | null {
+  if (format === "UBL") return "ubl";
+  if (format === "CII" || format === "FACTURX_PDF") return "cii";
   return null;
 }
 
-/** Pré-parse le .sch pour récupérer le flag (fatal/warning) de chaque assert/report. */
+/** Liste les schematrons à appliquer : officiels présents, sinon maison. */
+function candidatsSch(format: FormatFacture): SchInfo[] {
+  const base = baseFormat(format);
+  if (!base) return [];
+  const off: SchInfo[] = [];
+  const en = path.join(DOSSIER, "official", `${base}.sch`);
+  const fnfe = path.join(DOSSIER, "official", `fnfe-${base}.sch`);
+  if (fs.existsSync(en)) off.push({ chemin: en, officiel: true, libelle: `${base}.sch (EN 16931)` });
+  if (fs.existsSync(fnfe)) off.push({ chemin: fnfe, officiel: true, libelle: `fnfe-${base}.sch (FNFE-MPE)` });
+  if (off.length) return off;
+  const maison = path.join(DOSSIER, `factucheck-${base}.sch`);
+  if (fs.existsSync(maison)) return [{ chemin: maison, officiel: false, libelle: `factucheck-${base}.sch (maison)` }];
+  return [];
+}
+
+/** Flag (fatal/warning) de chaque assert/report, par id. */
 function construireFlags(schXml: string): Map<string, string> {
   const parser = new XMLParser({
     ignoreAttributes: false,
@@ -66,19 +78,56 @@ function construireFlags(schXml: string): Map<string, string> {
 function categoriePour(ruleId: string): Categorie {
   const u = ruleId.toUpperCase();
   if (u.startsWith("BR-CO") || u.includes("MONTANT") || u.includes("TOTAL")) return "montants";
-  if (u.includes("CTC") || u.includes("FR") || u.includes("SIREN") || u.includes("MEN"))
-    return "mentions";
+  if (u.includes("CTC") || u.includes("FR") || u.includes("SIREN") || u.includes("SIRET") || u.includes("MEN")) return "mentions";
   return "format";
 }
 
 function extraireCode(message: string, assertId?: string): string {
   if (assertId) return assertId;
-  const m = message.match(/\[([A-Z0-9][A-Z0-9-]*)\]/);
+  const m = message.match(/\[([A-Z0-9][A-Z0-9/-]*)\]/);
   return m ? m[1] : "SCH";
 }
 
+// Cache des schematrons compilés (par chemin + mtime).
+interface CacheEntry {
+  mtimeMs: number;
+  schema: import("node-schematron").Schema;
+  flags: Map<string, string>;
+}
+const cache = new Map<string, CacheEntry>();
+
+type NodeSchematron = typeof import("node-schematron");
+
+async function chargerNodeSchematron(): Promise<NodeSchematron | null> {
+  try {
+    const mod = (await import("node-schematron")) as unknown as {
+      Schema?: NodeSchematron["Schema"];
+      registerCustomXPathFunction?: NodeSchematron["registerCustomXPathFunction"];
+      default?: NodeSchematron;
+    };
+    if (mod.Schema && mod.registerCustomXPathFunction) return mod as unknown as NodeSchematron;
+    return (mod.default as NodeSchematron) ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function obtenirSchema(ns: NodeSchematron, chemin: string): CacheEntry {
+  const st = fs.statSync(chemin);
+  const existant = cache.get(chemin);
+  if (existant && existant.mtimeMs === st.mtimeMs) return existant;
+  const transforme = transformerSchematron(fs.readFileSync(chemin, "utf8"));
+  const entry: CacheEntry = {
+    mtimeMs: st.mtimeMs,
+    schema: ns.Schema.fromString(transforme),
+    flags: construireFlags(transforme),
+  };
+  cache.set(chemin, entry);
+  return entry;
+}
+
 /**
- * Valide une facture XML avec le schematron adapté à son format.
+ * Valide une facture XML avec le(s) schematron(s) adaptés à son format.
  * Dégradation gracieuse : renvoie execute=false si indisponible (jamais d'exception).
  */
 export async function validerSchematron(
@@ -96,72 +145,60 @@ export async function validerSchematron(
   });
 
   if (!xml) return vide("Aucun XML exploitable à valider.");
-  const sch = opts?.fichierSch
-    ? { chemin: opts.fichierSch, officiel: /[/\\]official[/\\]/.test(opts.fichierSch) }
-    : choisirSch(format);
-  if (!sch) return vide(`Aucun schematron disponible pour le format ${format}.`);
+  const schs: SchInfo[] = opts?.fichierSch
+    ? [{ chemin: opts.fichierSch, officiel: /[/\\]official[/\\]/.test(opts.fichierSch), libelle: path.basename(opts.fichierSch) }]
+    : candidatsSch(format);
+  if (!schs.length) return vide(`Aucun schematron disponible pour le format ${format}.`);
 
-  let schXml: string;
-  try {
-    schXml = fs.readFileSync(sch.chemin, "utf8");
-  } catch (e) {
-    return vide(`Lecture du schematron impossible : ${(e as Error).message}`);
-  }
-
-  let Schema: typeof import("node-schematron").Schema;
-  try {
-    const mod = (await import("node-schematron")) as unknown as {
-      Schema?: typeof import("node-schematron").Schema;
-      default?: { Schema: typeof import("node-schematron").Schema };
-    };
-    Schema = mod.Schema ?? mod.default!.Schema;
-  } catch (e) {
-    return vide(`Moteur Schematron indisponible : ${(e as Error).message}`);
-  }
-
-  const flags = construireFlags(schXml);
-  const source = sch.officiel
-    ? `${path.basename(sch.chemin)} (officiel)`
-    : `${path.basename(sch.chemin)} (maison, à vérifier)`;
-
-  let resultats: Array<{ assertId?: string; isReport?: boolean; message?: string }>;
-  try {
-    resultats = Schema.fromString(schXml).validateString(xml, {
-      debug: true,
-    }) as typeof resultats;
-  } catch (e) {
-    return vide(`Validation Schematron en échec : ${(e as Error).message}`);
-  }
+  const ns = await chargerNodeSchematron();
+  if (!ns) return vide("Moteur Schematron indisponible.");
+  registerFnfeFunctions(ns.registerCustomXPathFunction);
 
   const findings: Finding[] = [];
+  const sources: string[] = [];
+  const notes: string[] = [];
   let bloquants = 0;
-  for (const r of resultats) {
-    const message = (r.message ?? "").trim();
-    const ruleId = extraireCode(message, r.assertId);
-    const flag = (flags.get(ruleId) ?? "fatal").toLowerCase();
-    const estBloquant = !r.isReport && flag !== "warning" && flag !== "info";
-    const statut = estBloquant ? "bloquant" : "avertissement";
-    if (estBloquant) bloquants++;
-    findings.push({
-      ruleId,
-      libelle: `Contrôle ${ruleId}`,
-      categorie: categoriePour(ruleId),
-      statut,
-      message: message || `Règle ${ruleId} non respectée.`,
-      commentCorriger: "Corrigez la facture pour respecter cette règle de validation.",
-      infobulle: "Contrôle issu de la validation Schematron.",
-      source,
-      aVerifier: !sch.officiel,
-      origine: "schematron",
-    });
+
+  for (const sch of schs) {
+    let entry: CacheEntry;
+    let resultats: Array<{ assertId?: string; isReport?: boolean; message?: string }>;
+    try {
+      entry = obtenirSchema(ns, sch.chemin);
+      resultats = entry.schema.validateString(xml, { debug: true }) as typeof resultats;
+    } catch (e) {
+      notes.push(`${sch.libelle} : ${(e as Error).message}`);
+      continue;
+    }
+    sources.push(sch.libelle);
+    for (const r of resultats) {
+      const message = (r.message ?? "").trim();
+      const ruleId = extraireCode(message, r.assertId);
+      const flag = (entry.flags.get(ruleId) ?? "fatal").toLowerCase();
+      const estBloquant = !r.isReport && flag !== "warning" && flag !== "info";
+      if (estBloquant) bloquants++;
+      findings.push({
+        ruleId,
+        libelle: `Contrôle ${ruleId}`,
+        categorie: categoriePour(ruleId),
+        statut: estBloquant ? "bloquant" : "avertissement",
+        message: message || `Règle ${ruleId} non respectée.`,
+        commentCorriger: "Corrigez la facture pour respecter cette règle de validation.",
+        infobulle: "Contrôle issu de la validation Schematron.",
+        source: sch.libelle,
+        aVerifier: !sch.officiel,
+        origine: "schematron",
+      });
+    }
   }
+
+  if (sources.length === 0) return vide(notes.join(" | ") || "Validation Schematron indisponible.");
 
   return {
     execute: true,
     moteur: "node-schematron",
-    source,
+    source: sources.join(" + "),
     findings,
     bloquants,
-    note: null,
+    note: notes.length ? notes.join(" | ") : null,
   };
 }

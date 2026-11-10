@@ -15,12 +15,18 @@ import path from "node:path";
 import { preprocess } from "./preprocess-schematron.mjs";
 
 const REF = process.argv[2] || "master";
-const BASE = `https://raw.githubusercontent.com/ConnectingEurope/eInvoicing-EN16931/${REF}`;
+const EN16931 = `https://raw.githubusercontent.com/ConnectingEurope/eInvoicing-EN16931/${REF}`;
+const FNFE = "https://raw.githubusercontent.com/fnfempe/France_RFE/main";
 const OUT = path.join(process.cwd(), "schematron", "official");
 
 const TARGETS = [
-  { flavor: "cii", main: "cii/schematron/EN16931-CII-validation.sch" },
-  { flavor: "ubl", main: "ubl/schematron/EN16931-UBL-validation.sch" },
+  // EN 16931 (sémantique européenne) — includes + patterns abstraits à développer.
+  { out: "cii", base: EN16931, main: "cii/schematron/EN16931-CII-validation.sch" },
+  { out: "ubl", base: EN16931, main: "ubl/schematron/EN16931-UBL-validation.sch" },
+  // FNFE-MPE BR-FR (profil EXTENDED-CTC-FR) — autonome (strip <xsl:function> + <let>
+  // sont faits au runtime par transformerSchematron).
+  { out: "fnfe-cii", base: FNFE, main: "FNFE_RFE_INVOICE/CII/EXTENDED-CTC-FR/schematron/BR-FR-Flux2-Schematron-CII.sch" },
+  { out: "fnfe-ubl", base: FNFE, main: "FNFE_RFE_INVOICE/UBL/EXTENDED-CTC-FR/schematron/BR-FR-Flux2-Schematron-UBL.sch" },
 ];
 
 function curl(url, dest) {
@@ -29,25 +35,31 @@ function curl(url, dest) {
   execFileSync("curl", ["-sSfL", "--max-time", "60", "-o", dest, url]);
 }
 
-function fetchRecursive(repoRelPath, tmpRoot, seen = new Set()) {
+function fetchRecursive(base, repoRelPath, tmpRoot, seen = new Set()) {
   if (seen.has(repoRelPath)) return;
   seen.add(repoRelPath);
   const dest = path.join(tmpRoot, repoRelPath);
-  curl(`${BASE}/${repoRelPath}`, dest);
+  curl(`${base}/${repoRelPath}`, dest);
   const content = fs.readFileSync(dest, "utf8");
   const dir = path.posix.dirname(repoRelPath);
   for (const m of content.matchAll(/<include\s+href="([^"]+)"\s*\/>/g)) {
-    fetchRecursive(path.posix.normalize(path.posix.join(dir, m[1])), tmpRoot, seen);
+    fetchRecursive(base, path.posix.normalize(path.posix.join(dir, m[1])), tmpRoot, seen);
   }
 }
 
 fs.mkdirSync(OUT, { recursive: true });
 for (const t of TARGETS) {
-  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), `en16931-${t.flavor}-`));
-  process.stdout.write(`• ${t.flavor.toUpperCase()} : téléchargement (${REF})… `);
-  fetchRecursive(t.main, tmp);
-  const out = preprocess(path.join(tmp, t.main));
-  fs.writeFileSync(path.join(OUT, `${t.flavor}.sch`), out, "utf8");
-  console.log(`préprocessé → schematron/official/${t.flavor}.sch (${out.length} octets)`);
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), `sch-${t.out}-`));
+  process.stdout.write(`• ${t.out} : téléchargement… `);
+  try {
+    fetchRecursive(t.base, t.main, tmp);
+    // preprocess() résout includes + patterns abstraits (EN 16931) ; sans objet
+    // pour le FNFE (autonome) → renvoyé tel quel, transformé au runtime.
+    const out = preprocess(path.join(tmp, t.main));
+    fs.writeFileSync(path.join(OUT, `${t.out}.sch`), out, "utf8");
+    console.log(`→ schematron/official/${t.out}.sch (${out.length} octets)`);
+  } catch (e) {
+    console.log(`ÉCHEC : ${e.message}`);
+  }
 }
 console.log("Terminé. Redémarrez l'application pour utiliser les schematrons officiels.");

@@ -86,11 +86,13 @@ Le moteur Schematron est **intégré** (`node-schematron`, pur JS ; voir
   affiché dans une section dédiée du rapport, et intégré à la conformité globale.
 - Nos règles à forte valeur UX (FMT-003 profil accepté, explications, score) sont
   conservées par-dessus.
-- **Officiel EN 16931** : `npm run schematron:official` télécharge, résout les
-  includes et développe les patterns abstraits des schematrons EN 16931 (CII + UBL)
-  → `schematron/official/` (prioritaires, « non à vérifier »). Vérifié : ils
-  s'exécutent et la facture d'exemple passe la validation officielle CII.
-- **Reste** : brancher de la même façon les schematrons **FNFE-MPE** (EXTENDED-CTC-FR).
+- **Officiel EN 16931 + FNFE-MPE** : `npm run schematron:official` télécharge et
+  prépare les schematrons **EN 16931** (CII + UBL) **et** **FNFE-MPE EXTENDED-CTC-FR**
+  (CII + UBL) → `schematron/official/` (prioritaires, « non à vérifier »). Le FNFE
+  définit des fonctions XSLT `custom:*` (portées en JS) et des `<let>` (réécrits en
+  `let … return` natif) pour être exécutables par node-schematron. Vérifié : les
+  factures d'exemple officielles FNFE valides passent, une facture altérée déclenche
+  la règle BR-FR correspondante.
 
 ## 7. Sources
 
