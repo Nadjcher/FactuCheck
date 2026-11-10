@@ -36,6 +36,7 @@ export function evaluer(inv: ParsedInvoice): Report {
   let poidsTotal = 0;
   let poidsReussi = 0;
   let contientReglesAVerifier = false;
+  let exhaustif = true;
 
   for (const regle of REGLES) {
     const fn = checks[regle.id];
@@ -52,6 +53,7 @@ export function evaluer(inv: ParsedInvoice): Report {
       if (res.passed) poidsReussi += POIDS[regle.severite];
     }
     if (regle.aVerifier && res.applicable) contientReglesAVerifier = true;
+    if (res.applicable && regle.exhaustif === false) exhaustif = false;
 
     const message =
       statut === "reussi"
@@ -83,6 +85,7 @@ export function evaluer(inv: ParsedInvoice): Report {
     profilFacturx: inv.profilFacturx,
     score,
     conforme,
+    exhaustif,
     counts,
     findings,
     contientReglesAVerifier,

@@ -46,6 +46,11 @@ export interface RuleDefinition {
   aVerifier: boolean;
   /** Identifiant de la règle correspondante dans la spécification (FC-…). */
   specId?: string | null;
+  /**
+   * `false` quand le contrôle n'est que partiel / best-effort (ex. PDF/A-3 ou
+   * XSD non validés exhaustivement). Rend le verdict global « partiel ».
+   */
+  exhaustif?: boolean;
   messageOk: string;
   commentCorriger: string;
   infobulle: string;
@@ -174,6 +179,11 @@ export interface Report {
   profilFacturx: ProfilFacturx;
   score: number; // 0..100
   conforme: boolean; // aucun contrôle bloquant en échec
+  /**
+   * `false` si au moins un contrôle applicable n'est que partiel (PDF/A-3, XSD).
+   * Un rapport conforme mais non exhaustif est présenté « Contrôle partiel ».
+   */
+  exhaustif: boolean;
   counts: ReportCounts;
   findings: Finding[];
   /** Vrai si au moins une règle évaluée est encore « À VÉRIFIER ». */

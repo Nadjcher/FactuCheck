@@ -62,6 +62,10 @@ describe("évaluation — facture valide", () => {
     expect(report.score).toBeGreaterThanOrEqual(90);
   });
 
+  it("reste « contrôle partiel » (PDF/A-3 et XSD non exhaustifs)", () => {
+    expect(report.exhaustif).toBe(false);
+  });
+
   it("valide la cohérence des montants (MNT-001)", () => {
     const f = report.findings.find((x) => x.ruleId === "MNT-001");
     expect(f?.statut).toBe("reussi");

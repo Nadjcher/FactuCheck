@@ -29,23 +29,29 @@ function SectionTitre({ children, compte }: { children: React.ReactNode; compte?
 }
 
 export function RapportVue({ nom, report }: { nom: string; report: Report }) {
+  const verdict = !report.conforme ? "nonConforme" : report.exhaustif ? "conforme" : "partiel";
+  const verdictLabel =
+    verdict === "conforme"
+      ? dict.statut.conforme
+      : verdict === "partiel"
+        ? dict.statut.partiel
+        : dict.statut.nonConforme;
+  const verdictColor =
+    verdict === "conforme" ? "text-success" : verdict === "partiel" ? "text-warning" : "text-danger";
+
   return (
     <div className="space-y-8">
       {/* Verdict */}
       <Card className="overflow-hidden print-break-avoid">
         <CardContent className="flex flex-col gap-6 p-6 sm:flex-row sm:items-center sm:gap-8">
-          <ScoreRing score={report.score} conforme={report.conforme} size={168} />
+          <ScoreRing score={report.score} conforme={report.conforme} exhaustif={report.exhaustif} size={168} />
           <div className="min-w-0 flex-1 space-y-3">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <FileCheck2 className="h-4 w-4 shrink-0" aria-hidden="true" />
               <span className="truncate" title={nom}>{nom}</span>
             </div>
-            <p
-              className={`font-display text-3xl font-semibold sm:text-4xl ${
-                report.conforme ? "text-success" : "text-danger"
-              }`}
-            >
-              {report.conforme ? dict.statut.conforme : dict.statut.nonConforme}
+            <p className={`font-display text-3xl font-semibold sm:text-4xl ${verdictColor}`}>
+              {verdictLabel}
             </p>
             <div className="flex flex-wrap items-center gap-2">
               <Badge tone="neutral">{report.format}</Badge>
@@ -79,6 +85,13 @@ export function RapportVue({ nom, report }: { nom: string; report: Report }) {
             <p className="font-medium text-danger">Fichier non exploitable</p>
             <p className="text-muted-foreground">{report.erreurParsing}</p>
           </div>
+        </div>
+      )}
+
+      {verdict === "partiel" && (
+        <div className="flex items-start gap-3 rounded-lg border border-warning/40 bg-warning-soft p-4 text-sm">
+          <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-warning" aria-hidden="true" />
+          <p className="max-w-prose text-foreground/80">{dict.legal.partiel}</p>
         </div>
       )}
 

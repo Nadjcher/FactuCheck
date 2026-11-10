@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 interface ScoreRingProps {
   score: number; // 0..100
   conforme: boolean;
+  exhaustif?: boolean;
   size?: number;
   className?: string;
 }
@@ -11,6 +12,7 @@ interface ScoreRingProps {
 export function ScoreRing({
   score,
   conforme,
+  exhaustif = true,
   size = 180,
   className,
 }: ScoreRingProps) {
@@ -23,9 +25,11 @@ export function ScoreRing({
   // Couleur : vert si conforme & score élevé, orange si moyen, rouge sinon.
   const couleur = !conforme
     ? "hsl(var(--danger))"
-    : pct >= 80
-      ? "hsl(var(--success))"
-      : "hsl(var(--warning))";
+    : !exhaustif
+      ? "hsl(var(--warning))"
+      : pct >= 80
+        ? "hsl(var(--success))"
+        : "hsl(var(--warning))";
 
   return (
     <div

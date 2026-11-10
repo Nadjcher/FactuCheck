@@ -55,6 +55,7 @@
       "libelle": "Structure XML conforme à la syntaxe",
       "categorie": "format",
       "severite": "bloquant",
+      "exhaustif": false,
       "source": "Schémas XSD CII / UBL (bien formé + éléments obligatoires). La validation XSD complète nécessite les schémas officiels.",
       "aVerifier": true,
       "messageOk": "Le XML est bien formé et porte les éléments structurels obligatoires.",
