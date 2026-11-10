@@ -50,7 +50,7 @@ export const CII_VALIDE = `<?xml version="1.0" encoding="UTF-8"?>
       </ram:SellerTradeParty>
       <ram:BuyerTradeParty>
         <ram:Name>Client Demo SAS</ram:Name>
-        <ram:SpecifiedLegalOrganization><ram:ID schemeID="0002">987654329</ram:ID></ram:SpecifiedLegalOrganization>
+        <ram:SpecifiedLegalOrganization><ram:ID schemeID="0002">987654324</ram:ID></ram:SpecifiedLegalOrganization>
         <ram:PostalTradeAddress>
           <ram:PostcodeCode>69002</ram:PostcodeCode>
           <ram:LineOne>2 avenue des Ventes</ram:LineOne>
@@ -101,7 +101,7 @@ export const CII_TVA_INCOHERENTE = `<?xml version="1.0" encoding="UTF-8"?>
   xmlns:ram="urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100">
   <rsm:SupplyChainTradeTransaction>
     <ram:ApplicableHeaderTradeAgreement>
-      <ram:BuyerTradeParty><ram:SpecifiedLegalOrganization><ram:ID>987654329</ram:ID></ram:SpecifiedLegalOrganization></ram:BuyerTradeParty>
+      <ram:BuyerTradeParty><ram:SpecifiedLegalOrganization><ram:ID>987654324</ram:ID></ram:SpecifiedLegalOrganization></ram:BuyerTradeParty>
     </ram:ApplicableHeaderTradeAgreement>
     <ram:ApplicableHeaderTradeSettlement>
       <ram:ApplicableTradeTax>
@@ -176,7 +176,7 @@ export const UBL_VALIDE = `<?xml version="1.0" encoding="UTF-8"?>
   </cac:Party></cac:AccountingSupplierParty>
   <cac:AccountingCustomerParty><cac:Party>
     <cac:PartyName><cbc:Name>Client Demo</cbc:Name></cac:PartyName>
-    <cac:PartyLegalEntity><cbc:CompanyID>987654329</cbc:CompanyID></cac:PartyLegalEntity>
+    <cac:PartyLegalEntity><cbc:CompanyID>987654324</cbc:CompanyID></cac:PartyLegalEntity>
   </cac:Party></cac:AccountingCustomerParty>
   <cac:Delivery><cac:DeliveryLocation><cac:Address><cbc:CityName>Lyon</cbc:CityName></cac:Address></cac:DeliveryLocation></cac:Delivery>
   <cac:TaxTotal>
@@ -216,7 +216,7 @@ export const CII_LIGNES_INCOHERENTES = `<?xml version="1.0" encoding="UTF-8"?>
         <ram:SpecifiedLegalOrganization><ram:ID>123456782</ram:ID></ram:SpecifiedLegalOrganization>
       </ram:SellerTradeParty>
       <ram:BuyerTradeParty>
-        <ram:SpecifiedLegalOrganization><ram:ID>987654329</ram:ID></ram:SpecifiedLegalOrganization>
+        <ram:SpecifiedLegalOrganization><ram:ID>987654324</ram:ID></ram:SpecifiedLegalOrganization>
       </ram:BuyerTradeParty>
     </ram:ApplicableHeaderTradeAgreement>
     <ram:ApplicableHeaderTradeSettlement>

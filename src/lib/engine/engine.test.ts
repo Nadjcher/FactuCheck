@@ -27,7 +27,7 @@ describe("parsing", () => {
     const inv = parseInvoice({ nom: "f.xml", bytes: toBuffer(CII_VALIDE) });
     expect(inv.numero).toBe("FA-2026-0001");
     expect(inv.emetteur.siren).toBe("123456782");
-    expect(inv.client.siren).toBe("987654329");
+    expect(inv.client.siren).toBe("987654324");
     expect(inv.emetteur.numeroTVA).toBe("FR32123456782");
     expect(inv.montantHT).toBe(1000);
     expect(inv.montantTVA).toBe(200);
@@ -39,7 +39,7 @@ describe("parsing", () => {
     const inv = parseInvoice({ nom: "f.xml", bytes: toBuffer(UBL_VALIDE) });
     expect(inv.numero).toBe("INV-2026-42");
     expect(inv.emetteur.siren).toBe("123456782");
-    expect(inv.client.siren).toBe("987654329");
+    expect(inv.client.siren).toBe("987654324");
     expect(inv.montantTTC).toBe(1200);
   });
 

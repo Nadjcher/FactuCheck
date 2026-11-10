@@ -9,9 +9,24 @@ const ok = (detail?: string) => ({ applicable: true, passed: true, detail });
 const ko = (detail?: string) => ({ applicable: true, passed: false, detail });
 const na = () => ({ applicable: false, passed: false });
 
+/** Clé de contrôle Luhn (SIREN à 9 chiffres). */
+function luhnValide(num: string): boolean {
+  let somme = 0;
+  for (let i = 0; i < num.length; i++) {
+    let d = num.charCodeAt(num.length - 1 - i) - 48;
+    if (i % 2 === 1) {
+      d *= 2;
+      if (d > 9) d -= 9;
+    }
+    somme += d;
+  }
+  return somme % 10 === 0;
+}
+
 function sirenValide(s: string | null): boolean {
   if (!s) return false;
-  return /^\d{9}$/.test(s.replace(/\s/g, ""));
+  const n = s.replace(/\s/g, "");
+  return /^\d{9}$/.test(n) && luhnValide(n);
 }
 
 /** Date AAAAMMJJ ou ISO ; valide et non située dans le futur. */
