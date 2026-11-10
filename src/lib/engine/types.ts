@@ -137,8 +137,8 @@ export interface CheckResult {
 /** Fonction de contrôle associée à une règle par son id. */
 export type CheckFn = (inv: ParsedInvoice) => CheckResult;
 
-/** Origine d'un résultat : moteur « métier » interne ou validation Schematron. */
-export type OrigineFinding = "moteur" | "schematron";
+/** Origine d'un résultat : moteur « métier », Schematron, ou validation PDF/A (veraPDF). */
+export type OrigineFinding = "moteur" | "schematron" | "verapdf";
 
 /** Ligne de résultat pour une règle dans le rapport final. */
 export interface Finding {
@@ -166,6 +166,23 @@ export interface SchematronResultat {
   note: string | null; // diagnostic (ex. aucun schematron pour ce format)
 }
 
+/** Résultat de la validation PDF/A-3 complète par le service veraPDF (ISO 19005-3). */
+export interface PdfA3Resultat {
+  /** La validation a-t-elle pu s'exécuter (service configuré et joignable) ? */
+  execute: boolean;
+  moteur: "veraPDF";
+  /** Profil PDF/A visé (ex. « 3b »). */
+  flavour: string;
+  /** Conforme PDF/A-3 ? `null` si non exécuté. */
+  conforme: boolean | null;
+  passed: number;
+  failed: number;
+  /** Jusqu'à quelques règles ISO 19005-3 en échec (clause + message). */
+  details: Array<{ clause: string; message: string }>;
+  /** Diagnostic (service non configuré, injoignable, version…). */
+  note: string | null;
+}
+
 export interface ReportCounts {
   reussi: number;
   avertissement: number;
@@ -191,5 +208,7 @@ export interface Report {
   erreurParsing: string | null;
   /** Résultat de la validation Schematron, si exécutée. */
   schematron?: SchematronResultat;
+  /** Résultat de la validation PDF/A-3 (service veraPDF), si exécutée. */
+  pdfA3?: PdfA3Resultat;
   genereLe: string; // ISO
 }

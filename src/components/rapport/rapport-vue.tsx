@@ -137,6 +137,38 @@ export function RapportVue({ nom, report }: { nom: string; report: Report }) {
         </section>
       )}
 
+      {/* Validation PDF/A-3 (service veraPDF, ISO 19005-3) */}
+      {report.pdfA3 && (
+        <section className="print-break-avoid">
+          <SectionTitre>Validation PDF/A-3 (veraPDF)</SectionTitre>
+          {!report.pdfA3.execute ? (
+            <p className="rounded-lg border border-border bg-muted/40 p-3 text-sm text-muted-foreground">
+              Validation PDF/A-3 complète non exécutée ({report.pdfA3.note}). Le conteneur n'est
+              contrôlé que sur ses marqueurs&nbsp;: résultat « Contrôle partiel ».
+            </p>
+          ) : report.pdfA3.conforme ? (
+            <div className="flex items-center gap-2 rounded-lg border border-success/30 bg-success-soft p-3 text-sm text-success">
+              <ShieldCheck className="h-4 w-4 shrink-0" aria-hidden="true" />
+              PDF/A-{report.pdfA3.flavour} conforme (ISO 19005-3)&nbsp;: {report.pdfA3.passed} contrôles, 0 échec.
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <p className="text-sm text-danger">
+                PDF/A-{report.pdfA3.flavour} non conforme&nbsp;: {report.pdfA3.failed} contrôle(s) en échec (veraPDF).
+              </p>
+              {report.pdfA3.details.map((d, i) => (
+                <Card key={`pdfa-${i}`} className="print-break-avoid">
+                  <CardContent className="p-4">
+                    <p className="font-mono text-xs text-muted-foreground">ISO 19005-3 §{d.clause}</p>
+                    <p className="mt-1 text-sm">{d.message}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
+
       {/* Contrôles par catégorie */}
       {ORDRE.map((cat) => {
         const items = report.findings.filter((f) => f.categorie === cat);

@@ -11,8 +11,67 @@ import { checks } from "./checks";
 import { REGLES } from "./rules-loader";
 import { parseInvoice, type EntreeFichier } from "./parse";
 import { validerSchematron } from "./schematron";
+import { validerPdfA3 } from "./verapdf-service";
+import type { PdfA3Resultat } from "./types";
 
 const POIDS: Record<Severite, number> = { bloquant: 3, avertissement: 1 };
+
+/** Règle couverte par une validation externe exhaustive (ne force plus « partiel »). */
+function couvertParValidateur(ruleId: string, pdfA3Execute: boolean): boolean {
+  // PDF-001 (FC-S02, PDF/A-3) est pleinement validé dès que veraPDF a tourné.
+  return ruleId === "PDF-001" && pdfA3Execute;
+}
+
+/** Recalcule counts, score (pondéré), conformité et exhaustivité depuis les findings « moteur ». */
+function recalculer(report: Report, pdfA3Execute: boolean): void {
+  const counts: ReportCounts = { reussi: 0, avertissement: 0, bloquant: 0, nonApplicable: 0 };
+  let poidsTotal = 0;
+  let poidsReussi = 0;
+  let exhaustif = true;
+
+  for (const regle of REGLES) {
+    const f = report.findings.find((x) => x.ruleId === regle.id);
+    if (!f) continue;
+    if (f.statut === "reussi") counts.reussi++;
+    else if (f.statut === "avertissement") counts.avertissement++;
+    else if (f.statut === "bloquant") counts.bloquant++;
+    else counts.nonApplicable++;
+
+    const applicable = f.statut !== "non_applicable";
+    if (applicable) {
+      poidsTotal += POIDS[regle.severite];
+      if (f.statut === "reussi") poidsReussi += POIDS[regle.severite];
+      if (regle.exhaustif === false && !couvertParValidateur(regle.id, pdfA3Execute)) {
+        exhaustif = false;
+      }
+    }
+  }
+  report.counts = counts;
+  report.score = poidsTotal === 0 ? 0 : Math.round((poidsReussi / poidsTotal) * 100);
+  report.conforme = counts.bloquant === 0 && report.erreurParsing == null;
+  report.exhaustif = exhaustif;
+}
+
+/** Intègre le verdict PDF/A-3 (veraPDF) : surcharge PDF-001 et recalcule le rapport. */
+function appliquerPdfA3(report: Report, pdfA3: PdfA3Resultat): void {
+  report.pdfA3 = pdfA3;
+  if (!pdfA3.execute) return;
+  const f = report.findings.find((x) => x.ruleId === "PDF-001");
+  if (f && f.statut !== "non_applicable") {
+    if (pdfA3.conforme) {
+      f.statut = "reussi";
+      f.message = `PDF/A-${pdfA3.flavour} validé par veraPDF (${pdfA3.passed} contrôles, 0 échec).`;
+      f.commentCorriger = null;
+    } else {
+      const detail = pdfA3.details.map((d) => `${d.clause} ${d.message}`.trim()).filter(Boolean).join(" ; ");
+      f.statut = "bloquant";
+      f.message = `PDF/A-${pdfA3.flavour} non conforme (veraPDF : ${pdfA3.failed} échec(s))${detail ? ` — ${detail}` : ""}.`;
+    }
+    f.origine = "verapdf";
+    f.source = `${f.source ?? ""}${f.source ? " " : ""}Validation ISO 19005-3 par veraPDF.`.trim();
+  }
+  recalculer(report, true);
+}
 
 function statutDepuis(
   severite: Severite,
@@ -149,11 +208,19 @@ export async function analyserFichierComplet(fichier: EntreeFichier): Promise<{
 }> {
   const parsed = parseInvoice(fichier);
   const report = evaluer(parsed);
-  const schematron = await validerSchematron(parsed.xmlSource, parsed.format);
+
+  // Contrôles officiels (Schematron) et validation PDF/A-3 (veraPDF) en parallèle.
+  const [schematron, pdfA3] = await Promise.all([
+    validerSchematron(parsed.xmlSource, parsed.format),
+    parsed.pdf.estPdf ? validerPdfA3(fichier.bytes) : Promise.resolve(null),
+  ]);
+
+  // 1) PDF/A-3 d'abord : surcharge PDF-001 et recalcule score/conformité/exhaustivité.
+  if (pdfA3) appliquerPdfA3(report, pdfA3);
+
+  // 2) Schematron ensuite : pénalité de score et conformité par-dessus.
   report.schematron = schematron;
   if (schematron.execute) {
-    // Le score global intègre les contrôles officiels : un bloquant pèse lourd,
-    // un avertissement légèrement, pour rester cohérent avec le verdict.
     const avert = schematron.findings.length - schematron.bloquants;
     report.score = Math.max(0, report.score - schematron.bloquants * 12 - avert * 2);
     if (schematron.bloquants > 0) report.conforme = false;

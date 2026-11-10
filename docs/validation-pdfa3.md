@@ -27,12 +27,25 @@ C'est un contrôle de **marqueurs**, pas une validation ISO 19005-3 complète (p
 ICC, output intent, incorporation des polices, flux…). PDF-001 et FMT-005 portent
 donc `exhaustif:false` → le rapport affiche **« Contrôle partiel »**.
 
-## Ce qui est délégué à veraPDF
+## Ce qui est délégué à veraPDF (branché)
 
 La validation PDF/A-3 **complète** est confiée à **veraPDF**, l'implémentation de
-référence de la PDF Association (ISO 19005). On ne l'embarque pas dans l'app
-(serverless JS) : en production, elle est appelée comme **service** et alimente
-l'état `exhaustif`.
+référence de la PDF Association (ISO 19005), via un **microservice** (Java) appelé
+en HTTP — on ne l'embarque pas dans l'app serverless JS.
+
+Le branchement est en place :
+- **Microservice** : `services/verapdf/` (serveur `server.mjs` + `Dockerfile`).
+  `POST /validate?flavour=3b` ← octets PDF → verdict JSON.
+- **Client** : `src/lib/engine/verapdf-service.ts` (`validerPdfA3`), configuré par
+  la variable d'environnement `VERAPDF_SERVICE_URL`.
+- **Intégration** : `analyserFichierComplet` appelle le service pour tout PDF, en
+  parallèle du Schematron, et **surcharge la règle PDF-001 (FC-S02)** avec le
+  verdict réel :
+  - conforme → PDF-001 **réussi** (le contrôle PDF/A-3 cesse d'être « partiel ») ;
+  - non conforme → PDF-001 **bloquant**, avec les clauses ISO 19005-3 en échec.
+- **Dégradation gracieuse** : si `VERAPDF_SERVICE_URL` est absent ou le service
+  injoignable, `execute=false`, le moteur retombe sur le contrôle de marqueurs et
+  le rapport reste « Contrôle partiel ». Aucune exception n'est levée.
 
 ## Preuve apportée
 
@@ -55,8 +68,13 @@ npm run verapdf:setup   # installe veraPDF en local (.verapdf/, non versionné)
 npm run verapdf:run     # valide les fixtures PDF/A-3B
 ```
 
-## Limite restante
+## État et limite restante
 
-En production, la conformité PDF/A-3 par-upload dépend du **branchement effectif du
-service veraPDF**. Tant qu'il n'est pas appelé en ligne, l'état reste
-`exhaustif:false` (« Contrôle partiel ») : honnête par construction.
+Le service veraPDF est **câblé** (client + microservice + intégration + tests). En
+production, il suffit de déployer le conteneur `services/verapdf/` et de définir
+`VERAPDF_SERVICE_URL` pour que la conformité PDF/A-3 soit réellement validée
+par-upload (PDF-001 devient un contrôle exhaustif).
+
+Même alors, le rapport peut rester « Contrôle partiel » tant que la validation
+**XSD** (FC-S06 / FMT-005) n'est pas, elle aussi, branchée — c'est le dernier
+maillon de validation structurelle, et il est affiché honnêtement.
