@@ -18,6 +18,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { HeroDemo } from "@/components/landing/hero-demo";
 import { TarifsGrid } from "@/components/tarifs-grid";
+import { Sceau } from "@/components/sceau";
 import { dict } from "@/lib/i18n";
 
 const ETAPE_ICONS = [Upload, ScanLine, PenLine];
@@ -48,13 +49,17 @@ export default function LandingPage() {
       <section className="border-b border-border">
         <div className="container grid items-center gap-12 py-14 lg:grid-cols-[1fr_minmax(380px,460px)] lg:py-20">
           <div className="space-y-7">
-            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-sm text-muted-foreground">
-              <ShieldCheck className="h-4 w-4 text-primary" aria-hidden="true" />
-              Réforme de la facturation électronique
-            </span>
-            <h1 className="max-w-[15ch] text-4xl font-semibold leading-[1.05] md:text-6xl">
-              {dict.promesse}
-            </h1>
+            <Sceau size={120} className="-ml-1" />
+            <div className="space-y-4">
+              <p className="max-w-prose text-sm text-muted-foreground">
+                Réforme de la facturation électronique
+                <span className="mx-1.5 text-[hsl(var(--ledger))]">·</span>
+                <span className="font-medium text-foreground">obligatoire au 1ᵉʳ septembre 2026</span>
+              </p>
+              <h1 className="display-xl max-w-[16ch] text-[2.55rem] leading-[1.05] sm:text-5xl md:text-6xl">
+                {dict.promesse}
+              </h1>
+            </div>
             <p className="max-w-prose text-lg text-muted-foreground">
               {dict.sousPromesse} Déposez une facture, voyez le verdict se former en
               direct — et corrigez avant de l'envoyer.
@@ -95,26 +100,29 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 3 étapes */}
+      {/* 3 étapes — un déroulé relié, façon registre */}
       <section id="produit" className="container py-16 md:py-24">
-        <h2 className="mb-12 max-w-[20ch] text-3xl font-semibold md:text-4xl">
+        <h2 className="mb-12 max-w-[20ch] text-3xl md:text-4xl">
           {dict.landing.demoTitre}
         </h2>
-        <ol className="grid gap-px overflow-hidden rounded-xl border border-border bg-border md:grid-cols-3">
+        <ol className="grid gap-y-10 md:grid-cols-3 md:gap-x-10">
           {dict.landing.etapes.map((etape, i) => {
             const Icon = ETAPE_ICONS[i];
             return (
-              <li key={etape.titre} className="bg-card p-6">
-                <div className="mb-4 flex items-center gap-3">
-                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <Icon className="h-5 w-5" aria-hidden="true" />
-                  </span>
-                  <span className="font-display text-sm font-semibold text-muted-foreground tabular">
-                    Étape {i + 1}
-                  </span>
+              <li key={etape.titre} className="relative border-t-2 border-primary pt-5">
+                {/* filet de liaison entre les étapes (desktop) */}
+                {i < 2 && (
+                  <span
+                    className="ledger-line absolute right-[-1.25rem] top-[-2px] hidden w-[1.25rem] border-t-2 md:block"
+                    aria-hidden="true"
+                  />
+                )}
+                <div className="flex items-baseline gap-3">
+                  <span className="display-xl text-3xl text-primary">{i + 1}</span>
+                  <Icon className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
                 </div>
-                <h3 className="mb-1.5 text-lg font-semibold">{etape.titre.replace(/^\d+\.\s*/, "")}</h3>
-                <p className="text-sm text-muted-foreground">{etape.texte}</p>
+                <h3 className="mb-1.5 mt-3 text-xl">{etape.titre.replace(/^\d+\.\s*/, "")}</h3>
+                <p className="max-w-[34ch] text-sm leading-relaxed text-muted-foreground">{etape.texte}</p>
               </li>
             );
           })}
@@ -131,15 +139,17 @@ export default function LandingPage() {
               apporter. Vous comprenez le résultat, même sans connaître la norme.
             </p>
           </div>
-          <div className="grid gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="grid sm:grid-cols-2 sm:gap-x-12">
             {VERIFS.map(({ Icon, t, d }) => (
-              <div key={t} className="border-t-2 border-primary/70 pt-4">
-                <Icon className="mb-3 h-6 w-6 text-primary" aria-hidden="true" />
-                <h3 className="mb-1.5 text-lg font-semibold">{t}</h3>
-                <p className="text-sm text-muted-foreground">{d}</p>
-              </div>
+              <li key={t} className="ledger-line flex gap-4 border-t py-5 first:border-t-0 sm:[&:nth-child(2)]:border-t-0">
+                <Icon className="mt-0.5 h-5 w-5 shrink-0 text-[hsl(var(--seal))]" aria-hidden="true" />
+                <div>
+                  <h3 className="text-lg">{t}</h3>
+                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{d}</p>
+                </div>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       </section>
 
@@ -148,14 +158,16 @@ export default function LandingPage() {
         <h2 className="mb-12 text-3xl font-semibold md:text-4xl">
           {dict.landing.avantagesTitre}
         </h2>
-        <div className="grid gap-x-10 gap-y-8 sm:grid-cols-3">
+        <div className="grid gap-10 sm:grid-cols-3">
           {dict.landing.avantages.map((av, i) => {
             const Icon = AVANTAGE_ICONS[i];
             return (
-              <div key={av.titre} className="border-t-2 border-primary/70 pt-4">
-                <Icon className="mb-3 h-6 w-6 text-primary" aria-hidden="true" />
-                <h3 className="mb-1.5 text-lg font-semibold">{av.titre}</h3>
-                <p className="text-sm text-muted-foreground">{av.texte}</p>
+              <div key={av.titre}>
+                <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[hsl(var(--seal))]/10 text-[hsl(var(--seal))]">
+                  <Icon className="h-5 w-5" aria-hidden="true" />
+                </span>
+                <h3 className="mb-1.5 mt-4 text-xl">{av.titre}</h3>
+                <p className="max-w-[34ch] text-sm leading-relaxed text-muted-foreground">{av.texte}</p>
               </div>
             );
           })}
