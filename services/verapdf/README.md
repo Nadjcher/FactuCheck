@@ -64,3 +64,12 @@ docker compose -f services/docker-compose.yml up --build
 > Note : même avec veraPDF branché, le rapport peut rester « Contrôle partiel »
 > tant que la validation **XSD** (FC-S06 / FMT-005) n'est pas, elle aussi,
 > exhaustive — c'est volontaire et affiché honnêtement.
+
+## Sécurité (déploiement)
+
+Ce service n'a pas d'authentification et traite des fichiers non fiables. À
+déployer **en réseau interne uniquement** (réseau privé / cluster), jamais exposé
+directement sur Internet : l'app FactuCheck l'appelle en interne. Protéger l'accès
+par le réseau (pas de port public) et, si besoin, une passerelle d'authentification.
+Les limites de taille (corps max) et l'absence de shell (`execFile`) bornent déjà
+l'abus, mais l'isolation réseau reste la première défense.

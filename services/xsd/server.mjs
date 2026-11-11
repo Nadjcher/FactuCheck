@@ -44,7 +44,10 @@ function valider(xmlPath, schema) {
   return new Promise((resolve, reject) => {
     execFile(
       XMLLINT,
-      ["--noout", "--schema", schema, xmlPath],
+      // --nonet : interdit tout accès réseau (pas de récupération de DTD/schéma
+      // distant référencé par un XML hostile). Sans --noent ni --loaddtd : les
+      // entités externes et DTD ne sont de toute façon pas chargées.
+      ["--nonet", "--noout", "--schema", schema, xmlPath],
       { maxBuffer: 32 * 1024 * 1024 },
       (err, _stdout, stderr) => {
         // xmllint : code 0 = valide ; code 3/4 = non valide (pas une panne service).

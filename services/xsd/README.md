@@ -51,3 +51,12 @@ docker run -p 8084:8084 factucheck-xsd
   **pleinement exhaustif** (plus de « Contrôle partiel »).
 - Non configuré / injoignable → dégradation gracieuse (contrôle best-effort,
   `exhaustif:false`). Aucune exception.
+
+## Sécurité (déploiement)
+
+Ce service n'a pas d'authentification et traite des fichiers non fiables. À
+déployer **en réseau interne uniquement** (réseau privé / cluster), jamais exposé
+directement sur Internet : l'app FactuCheck l'appelle en interne. Protéger l'accès
+par le réseau (pas de port public) et, si besoin, une passerelle d'authentification.
+Les limites de taille (corps max) et l'absence de shell (`execFile`) bornent déjà
+l'abus, mais l'isolation réseau reste la première défense.
