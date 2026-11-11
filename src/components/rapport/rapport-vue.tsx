@@ -40,15 +40,15 @@ export function RapportVue({ nom, report }: { nom: string; report: Report }) {
     verdict === "conforme" ? "text-success" : verdict === "partiel" ? "text-warning" : "text-danger";
 
   // Synthèse d'action : ce qu'il faut corriger, en clair, rassemblé en haut.
+  // On met en avant les messages MÉTIER (français simple + « comment corriger »)
+  // et on résume les contrôles officiels (Schematron, plus techniques) en une
+  // ligne — leur détail reste dans la section dédiée plus bas.
   const schFindings = report.schematron?.execute ? report.schematron.findings : [];
-  const aCorriger = [
-    ...report.findings.filter((f) => f.statut === "bloquant"),
-    ...schFindings.filter((f) => f.statut === "bloquant"),
-  ];
-  const aVerifierPoints = [
-    ...report.findings.filter((f) => f.statut === "avertissement"),
-    ...schFindings.filter((f) => f.statut === "avertissement"),
-  ];
+  const aCorriger = report.findings.filter((f) => f.statut === "bloquant");
+  const aVerifierPoints = report.findings.filter((f) => f.statut === "avertissement");
+  const schBloquants = schFindings.filter((f) => f.statut === "bloquant").length;
+  const schAvert = schFindings.filter((f) => f.statut === "avertissement").length;
+  const rienNeBloque = aCorriger.length === 0 && schBloquants === 0;
 
   return (
     <div className="space-y-8">
@@ -102,21 +102,23 @@ export function RapportVue({ nom, report }: { nom: string; report: Report }) {
       {/* Synthèse d'action : l'essentiel, en français simple, avant le détail technique. */}
       {!report.erreurParsing && (
         <section className="print-break-avoid">
-          {aCorriger.length === 0 ? (
+          {rienNeBloque ? (
             <div className="flex items-start gap-3 rounded-lg border border-success/30 bg-success-soft p-4">
               <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-success" aria-hidden="true" />
               <div className="text-sm">
                 <p className="font-semibold text-success">Rien ne bloque l'envoi de cette facture.</p>
                 <p className="mt-0.5 text-foreground/80">
-                  {aVerifierPoints.length > 0
-                    ? `${aVerifierPoints.length} point(s) d'attention ci-dessous, mais aucun n'empêche la transmission.`
+                  {aVerifierPoints.length + schAvert > 0
+                    ? `${aVerifierPoints.length + schAvert} point(s) d'attention ci-dessous, mais aucun n'empêche la transmission.`
                     : "Tous les contrôles bloquants sont au vert."}
                 </p>
               </div>
             </div>
           ) : (
             <>
-              <SectionTitre compte={`${aCorriger.length} à corriger`}>À corriger avant d'envoyer</SectionTitre>
+              <SectionTitre compte={`${aCorriger.length + (schBloquants > 0 ? 1 : 0)} à corriger`}>
+                À corriger avant d'envoyer
+              </SectionTitre>
               <div className="space-y-2">
                 {aCorriger.map((f, i) => (
                   <Card key={`fix-${f.ruleId}-${i}`} className="border-danger/30 print-break-avoid">
@@ -135,6 +137,23 @@ export function RapportVue({ nom, report }: { nom: string; report: Report }) {
                     </CardContent>
                   </Card>
                 ))}
+                {schBloquants > 0 && (
+                  <Card className="border-danger/30 print-break-avoid">
+                    <CardContent className="flex items-start gap-3 p-4">
+                      <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-danger" aria-hidden="true" />
+                      <div className="min-w-0 flex-1 text-sm">
+                        <p className="font-medium">
+                          {schBloquants} contrôle(s) officiel(s) à corriger
+                        </p>
+                        <p className="mt-0.5 text-muted-foreground">
+                          Des règles de la norme EN 16931 / FNFE ne sont pas respectées. Le détail,
+                          avec le code de chaque règle, figure dans « Contrôles réglementaires
+                          officiels » ci-dessous.
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
             </>
           )}
