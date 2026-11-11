@@ -8,8 +8,8 @@
       "libelle": "SIREN de l'émetteur présent",
       "categorie": "mentions",
       "severite": "bloquant",
-      "source": "CGI art. 242 nonies A ; EN 16931 — identification du vendeur (BT-30 / BT-29).",
-      "aVerifier": true,
+      "source": "Mention obligatoire : identification de l'assujetti vendeur — CGI art. 242 nonies A de l'annexe II (corroboré par le BOFIP et la fiche de contrôle des mentions de la Douane : le SIREN de l'assujetti y figure). EN 16931 : identification du vendeur (BT-30 / BT-29). Le moteur contrôle en outre la clé de Luhn du SIREN.",
+      "aVerifier": false,
       "messageOk": "Le SIREN de l'émetteur est renseigné.",
       "commentCorriger": "Renseignez le SIREN (9 chiffres) de l'entreprise émettrice dans l'identification du vendeur.",
       "infobulle": "SIREN : identifiant unique à 9 chiffres d'une entreprise française."
@@ -32,8 +32,8 @@
       "libelle": "Numéro de TVA intracommunautaire de l'émetteur",
       "categorie": "mentions",
       "severite": "avertissement",
-      "source": "CGI art. 242 nonies A — numéro de TVA intracommunautaire ; EN 16931 BT-31.",
-      "aVerifier": true,
+      "source": "Mention obligatoire : numéro d'identification à la TVA du vendeur — CGI art. 242 nonies A de l'annexe II et CGI art. 289 II (corroboré par le BOFIP). EN 16931 : BT-31 (Seller VAT identifier). Avertissement car le numéro peut être absent pour un non-assujetti / régime particulier.",
+      "aVerifier": false,
       "messageOk": "Le numéro de TVA de l'émetteur est renseigné.",
       "commentCorriger": "Renseignez le numéro de TVA intracommunautaire de l'émetteur (ex. FR + 11 caractères), sauf cas d'exonération (franchise en base).",
       "infobulle": "Numéro de TVA intracommunautaire : identifiant fiscal commençant par le code pays (FR pour la France)."
@@ -92,8 +92,8 @@
       "libelle": "Échéance ou conditions de paiement",
       "categorie": "mentions",
       "severite": "bloquant",
-      "source": "CGI art. 242 nonies A — date d'échéance / conditions de règlement ; EN 16931 BT-9 / BT-20.",
-      "aVerifier": true,
+      "source": "Mention obligatoire : date à laquelle le règlement doit intervenir et conditions de paiement — Code de commerce art. L441-9 (corroboré par la fiche de contrôle des mentions de la Douane), complété par l'art. L441-10 (pénalités de retard, indemnité de recouvrement). EN 16931 : BT-9 (échéance) / BT-20 (conditions de paiement).",
+      "aVerifier": false,
       "messageOk": "Une date d'échéance ou des conditions de paiement sont présentes.",
       "commentCorriger": "Renseignez la date d'échéance du paiement (BT-9) ou les conditions de règlement (BT-20).",
       "infobulle": "Date limite de paiement, ou texte décrivant les conditions de règlement."

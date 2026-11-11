@@ -39,6 +39,17 @@ export function RapportVue({ nom, report }: { nom: string; report: Report }) {
   const verdictColor =
     verdict === "conforme" ? "text-success" : verdict === "partiel" ? "text-warning" : "text-danger";
 
+  // Synthèse d'action : ce qu'il faut corriger, en clair, rassemblé en haut.
+  const schFindings = report.schematron?.execute ? report.schematron.findings : [];
+  const aCorriger = [
+    ...report.findings.filter((f) => f.statut === "bloquant"),
+    ...schFindings.filter((f) => f.statut === "bloquant"),
+  ];
+  const aVerifierPoints = [
+    ...report.findings.filter((f) => f.statut === "avertissement"),
+    ...schFindings.filter((f) => f.statut === "avertissement"),
+  ];
+
   return (
     <div className="space-y-8">
       {/* Verdict */}
@@ -88,6 +99,48 @@ export function RapportVue({ nom, report }: { nom: string; report: Report }) {
         </div>
       )}
 
+      {/* Synthèse d'action : l'essentiel, en français simple, avant le détail technique. */}
+      {!report.erreurParsing && (
+        <section className="print-break-avoid">
+          {aCorriger.length === 0 ? (
+            <div className="flex items-start gap-3 rounded-lg border border-success/30 bg-success-soft p-4">
+              <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-success" aria-hidden="true" />
+              <div className="text-sm">
+                <p className="font-semibold text-success">Rien ne bloque l'envoi de cette facture.</p>
+                <p className="mt-0.5 text-foreground/80">
+                  {aVerifierPoints.length > 0
+                    ? `${aVerifierPoints.length} point(s) d'attention ci-dessous, mais aucun n'empêche la transmission.`
+                    : "Tous les contrôles bloquants sont au vert."}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <>
+              <SectionTitre compte={`${aCorriger.length} à corriger`}>À corriger avant d'envoyer</SectionTitre>
+              <div className="space-y-2">
+                {aCorriger.map((f, i) => (
+                  <Card key={`fix-${f.ruleId}-${i}`} className="border-danger/30 print-break-avoid">
+                    <CardContent className="flex items-start gap-3 p-4">
+                      <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-danger" aria-hidden="true" />
+                      <div className="min-w-0 flex-1 text-sm">
+                        <p className="font-medium">{f.libelle}</p>
+                        <p className="mt-0.5 text-muted-foreground">{f.message}</p>
+                        {f.commentCorriger && (
+                          <p className="mt-2 flex items-start gap-1.5 text-foreground/90">
+                            <PenLine className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" aria-hidden="true" />
+                            <span>{f.commentCorriger}</span>
+                          </p>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </>
+          )}
+        </section>
+      )}
+
       {verdict === "partiel" && (
         <div className="flex items-start gap-3 rounded-lg border border-warning/40 bg-warning-soft p-4 text-sm">
           <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-warning" aria-hidden="true" />
@@ -105,10 +158,21 @@ export function RapportVue({ nom, report }: { nom: string; report: Report }) {
         </div>
       )}
 
+      {/* Séparation claire : l'essentiel est au-dessus, le détail complet en dessous. */}
+      {!report.erreurParsing && (
+        <div className="flex items-center gap-3 pt-2">
+          <div className="h-px flex-1 bg-border" />
+          <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            Détail complet des contrôles
+          </span>
+          <div className="h-px flex-1 bg-border" />
+        </div>
+      )}
+
       {/* Contrôles officiels (Schematron) */}
       {report.schematron && (
         <section className="print-break-avoid">
-          <SectionTitre>Contrôles officiels (Schematron)</SectionTitre>
+          <SectionTitre>Contrôles réglementaires officiels (EN 16931 / FNFE)</SectionTitre>
           {!report.schematron.execute ? (
             <p className="rounded-lg border border-border bg-muted/40 p-3 text-sm text-muted-foreground">
               Non exécutés : {report.schematron.note}
