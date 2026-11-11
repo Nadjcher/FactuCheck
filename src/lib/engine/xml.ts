@@ -43,11 +43,15 @@ export function textAt(obj: unknown, path: string): string | null {
   return text(get(obj, path));
 }
 
-/** Parse un montant en acceptant la virgule ou le point décimal. */
+/** Parse un montant décimal en acceptant la virgule ou le point.
+ *  Format strict (comme XSD decimal) : on REJETTE l'hexadécimal (0x10), le binaire
+ *  (0b10), la notation scientifique (1e3), les chiffres non-ASCII, etc., pour ne
+ *  jamais interpréter silencieusement un montant bidon comme un nombre valide. */
 export function toNumber(v: string | null): number | null {
   if (v == null) return null;
   const cleaned = v.replace(/\s/g, "").replace(",", ".");
-  if (cleaned === "") return null;
+  // -? ou +?, chiffres ASCII, point décimal optionnel ; rien d'autre.
+  if (!/^[+-]?\d+(\.\d+)?$/.test(cleaned)) return null;
   const n = Number(cleaned);
   return Number.isFinite(n) ? n : null;
 }
