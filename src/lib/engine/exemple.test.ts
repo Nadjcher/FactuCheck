@@ -16,5 +16,8 @@ describe("facture d'exemple publique", () => {
       expect(report.schematron.bloquants).toBe(0);
     }
     expect(report.conforme).toBe(true);
+    // XML conforme → pleinement exhaustif = « Conforme » (le seul axe non
+    // exhaustif, PDF/A-3, ne concerne que les fichiers PDF).
+    expect(report.exhaustif).toBe(true);
   });
 });

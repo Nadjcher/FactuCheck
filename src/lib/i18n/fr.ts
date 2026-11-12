@@ -88,7 +88,7 @@ export const fr = {
     avertissementRegles:
       "Chaque règle référence sa source (EN 16931, Factur-X / FNFE-MPE, DGFiP, CGI), mais reste « À VÉRIFIER » : la validation finale s'appuiera sur les schematrons officiels et un expert-comptable. Les résultats sont indicatifs et ne constituent pas un avis réglementaire.",
     partiel:
-      "Contrôle partiel : pour cette facture, la validation PDF/A-3 (veraPDF) et/ou la validation XSD complète n'ont pas été exécutées. Les contrôles de structure et de contenu sont passés, mais une facture peut encore être rejetée pour un motif PDF/A-3 ou XSD. Avec ces validateurs activés, le contrôle devient complet.",
+      "Contrôle partiel : pour ce fichier PDF, la validation PDF/A-3 complète (conteneur) n'a pas été exécutée. Les règles officielles EN 16931 / FNFE et la structure sont validées, mais un PDF peut encore être rejeté pour un motif propre au conteneur PDF/A-3. Avec le validateur veraPDF activé, le contrôle devient complet.",
   },
 } as const;
 

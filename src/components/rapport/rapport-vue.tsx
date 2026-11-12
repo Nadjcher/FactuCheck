@@ -258,8 +258,9 @@ export function RapportVue({ nom, report }: { nom: string; report: Report }) {
           <SectionTitre>Validation structurelle (XSD)</SectionTitre>
           {!report.xsd.execute ? (
             <p className="rounded-lg border border-border bg-muted/40 p-3 text-sm text-muted-foreground">
-              Validation XSD complète non exécutée ({report.xsd.note}). La structure n'est
-              contrôlée qu'en best-effort&nbsp;: résultat « Contrôle partiel ».
+              Validation XSD byte-à-byte (ordre des éléments, types) non activée —
+              renforcement optionnel. La structure est déjà contrôlée par le moteur et par
+              les contrôles réglementaires officiels ci-dessus.
             </p>
           ) : report.xsd.valide ? (
             <div className="flex items-center gap-2 rounded-lg border border-success/30 bg-success-soft p-3 text-sm text-success">

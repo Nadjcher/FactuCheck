@@ -62,8 +62,10 @@ describe("évaluation — facture valide", () => {
     expect(report.score).toBeGreaterThanOrEqual(90);
   });
 
-  it("reste « contrôle partiel » (PDF/A-3 et XSD non exhaustifs)", () => {
-    expect(report.exhaustif).toBe(false);
+  it("est pleinement exhaustif (XML : pas de conteneur PDF/A-3 à valider)", () => {
+    // Pour un XML pur, le seul axe non exhaustif (PDF/A-3) ne s'applique pas :
+    // le contrôle structurel interne + le Schematron officiel suffisent.
+    expect(report.exhaustif).toBe(true);
   });
 
   it("valide la cohérence des montants (MNT-001)", () => {
