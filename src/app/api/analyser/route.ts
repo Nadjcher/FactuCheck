@@ -1,12 +1,17 @@
 import { NextResponse } from "next/server";
 import { analyserFichierComplet, marquerUniciteLot } from "@/lib/engine";
 import type { Report } from "@/lib/engine";
+import { rateLimit, cleClient, reponse429 } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 
 const TAILLE_MAX = 15 * 1024 * 1024; // 15 Mo par fichier
 
 export async function POST(req: Request) {
+  // Anti-abus : 20 analyses / minute / IP (l'analyse est coûteuse).
+  const limite = rateLimit(`analyser:${cleClient(req)}`, 20, 60_000);
+  if (!limite.ok) return reponse429(limite);
+
   let form: FormData;
   try {
     form = await req.formData();
