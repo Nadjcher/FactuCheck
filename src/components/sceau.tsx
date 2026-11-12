@@ -1,20 +1,25 @@
 // Sceau de conformité — la signature visuelle de FactuCheck.
-// Un cachet officiel « CONTRÔLÉ · CONFORME » avec une coche centrale.
-// Hérite de la couleur via currentColor (par défaut le vert de validation --seal).
+// Un cachet officiel : double anneau, texte courbé lisible (arc haut + arc bas),
+// séparateurs en losange, et une coche de validation franche au centre.
+// Hérite du vert de validation (--seal) ; s'adapte au thème.
 import * as React from "react";
 
 export function Sceau({
   size = 128,
   className,
-  texte = "CONTRÔLÉ · CONFORME · EN 16931 · ",
+  haut = "CONTRÔLÉ",
+  bas = "CONFORME",
   "aria-hidden": ariaHidden = true,
 }: {
   size?: number;
   className?: string;
-  texte?: string;
+  haut?: string;
+  bas?: string;
   "aria-hidden"?: boolean;
 }) {
   const id = React.useId().replace(/:/g, "");
+  const R = 37; // rayon du texte courbé
+
   return (
     <svg
       width={size}
@@ -27,30 +32,46 @@ export function Sceau({
       style={{ color: "hsl(var(--seal))" }}
     >
       <defs>
-        {/* Cercle support du texte courbe (rayon 39), démarré en haut. */}
-        <path id={`${id}-circle`} fill="none" d="M50,11 a39,39 0 1,1 -0.01,0" />
+        {/* Arc du haut : gauche → droite par-dessus (texte à l'endroit). */}
+        <path id={`${id}-top`} fill="none" d={`M ${50 - R},50 A ${R},${R} 0 0 1 ${50 + R},50`} />
+        {/* Arc du bas : gauche → droite par-dessous (texte à l'endroit). */}
+        <path id={`${id}-bot`} fill="none" d={`M ${50 - R},50 A ${R},${R} 0 0 0 ${50 + R},50`} />
       </defs>
 
-      {/* Double anneau du cachet */}
-      <circle cx="50" cy="50" r="47" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.55" />
-      <circle cx="50" cy="50" r="43.5" fill="none" stroke="currentColor" strokeWidth="2.5" />
+      {/* Anneaux du cachet */}
+      <circle cx="50" cy="50" r="48" fill="none" stroke="currentColor" strokeWidth="0.9" opacity="0.45" />
+      <circle cx="50" cy="50" r="44.5" fill="none" stroke="currentColor" strokeWidth="2.4" />
+      <circle cx="50" cy="50" r="30.5" fill="none" stroke="currentColor" strokeWidth="0.9" opacity="0.4" />
 
-      {/* Texte circulaire */}
-      <text fill="currentColor" style={{ fontFamily: "var(--font-sans)", fontSize: "7.3px", fontWeight: 600, letterSpacing: "1.6px" }}>
-        <textPath href={`#${id}-circle`} startOffset="0">
-          {texte.repeat(2).slice(0, Math.max(texte.length, 34))}
-        </textPath>
-      </text>
+      {/* Texte circulaire (haut à l'endroit, bas à l'endroit) */}
+      <g
+        fill="currentColor"
+        style={{ fontFamily: "var(--font-sans)", fontWeight: 700, fontSize: "8.2px", letterSpacing: "2.1px" }}
+      >
+        <text>
+          <textPath href={`#${id}-top`} startOffset="50%" textAnchor="middle">
+            {haut}
+          </textPath>
+        </text>
+        <text>
+          <textPath href={`#${id}-bot`} startOffset="50%" textAnchor="middle">
+            {bas}
+          </textPath>
+        </text>
+      </g>
 
-      {/* Deux étoiles de séparation en bas */}
-      <g fill="currentColor" opacity="0.9" />
+      {/* Séparateurs en losange à 3 h et 9 h */}
+      <g fill="currentColor">
+        <rect x="8.4" y="48.4" width="3.2" height="3.2" transform="rotate(45 10 50)" />
+        <rect x="88.4" y="48.4" width="3.2" height="3.2" transform="rotate(45 90 50)" />
+      </g>
 
-      {/* Coche centrale, tracée comme un geste de validation */}
+      {/* Coche de validation, centrée */}
       <path
-        d="M34 51.5 L45 62 L68 38"
+        d="M37 51 L46 60.5 L65 40"
         fill="none"
         stroke="currentColor"
-        strokeWidth="5.5"
+        strokeWidth="5.4"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
