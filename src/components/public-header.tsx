@@ -19,6 +19,9 @@ export function PublicHeader() {
           <Link href="/tester" className="text-muted-foreground hover:text-foreground">
             {dict.nav.tester}
           </Link>
+          <Link href="/developpeurs" className="text-muted-foreground hover:text-foreground">
+            API
+          </Link>
         </nav>
         <div className="flex items-center gap-2">
           <ThemeToggle />
